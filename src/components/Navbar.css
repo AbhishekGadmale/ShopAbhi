@@ -1,0 +1,11 @@
+.navbar-brand{
+    font-weight:bold;
+    color:#febd69 !important;
+    font-size:1.4rem;
+}
+.navbar {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+button {
+  font-weight: 500;
+}
