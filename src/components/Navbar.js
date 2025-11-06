@@ -3,7 +3,7 @@ import { Navbar, Container, Form, FormControl, Button, Nav } from "react-bootstr
 import { FaShoppingCart, FaUser } from "react-icons/fa";
 import "./Navbar.css";
 
-export default function AmazonNavbar() {
+export default function AmazonNavbar({cartCount}) {
   return (
     <Navbar bg="dark" variant="dark" expand="lg" sticky="top" className="px-3">
       <Container fluid>
@@ -26,7 +26,7 @@ export default function AmazonNavbar() {
             <FaUser /> Login
           </Button>
           <Button variant="warning">
-            <FaShoppingCart /> Cart (0)
+            <FaShoppingCart /> Cart ({cartCount}) 
           </Button>
         </Nav>
       </Container>

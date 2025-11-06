@@ -5,7 +5,7 @@
     color: white;
     padding: 12px;
     transition: transform 0.3s ease;
-    height: 320px;
+    height: 420px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -57,6 +57,7 @@
     border-radius: 6px;
     padding: 6px 12px;
     transition: background 0.3s;
+    margin-top: auto;
 }
 .product-card button:hover{
     background-color: #ffb347;
@@ -65,7 +66,8 @@
 .product-grid{
     display: grid;
     grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-    gap:16px;
+    gap:20px;
+    justify-content: center;
 }
 .product-card .btn-warning{
     background-color: #ffa41c;

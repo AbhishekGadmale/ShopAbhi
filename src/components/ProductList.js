@@ -1,43 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, Button, Container, Row, Col, Spinner } from "react-bootstrap";
 import "./ProductList.css";
+import products from "../data/products";
 
-export default function ProductList() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching products:", err);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="text-center mt-5">
-        <Spinner animation="border" variant="warning" />
-        <p>Loading products...</p>
-      </div>
-    );
-  }
+ export default function ProductList({handleAddToCart}){
+  
 
   return (
-    <Container  fluid className="mt-4">
-      <Row className="product-grid">
+    <Container  className="mt-4">
+      <Row className="product-grid justify-content-center">
         {products.map((product) => (
           <Col key={product.id} md={3} className="product-grid mb-4">
             <Card className="product-card h-100 text-center shadow-sm">
               <Card.Img
                 variant="top"
                 src={product.image}
-                alt={product.title}
+                alt={product.Name}
                 style={{
                   height: "180px",
                   objectFit: "contain",
@@ -54,13 +32,13 @@ export default function ProductList() {
                     minHeight: "50px",
                   }}
                 >
-                  {product.title}
+                  {product.Name}
                 </Card.Title>
                 <div>
-                <Card.Text classMName="card-text" style={{ fontSize: "1.1rem" }}>
-                  ₹{Math.floor(product.price * 83)}
+                <Card.Text className="card-text" style={{ fontSize: "1.1rem" }}>
+                  {"₹"+product.price} 
                 </Card.Text>
-                <Button variant="warning">Add to Cart</Button>
+                <Button variant="warning" onClick={()=> handleAddToCart(product)}>Add to Cart</Button>
                 </div>
               </Card.Body>
             </Card>
@@ -70,3 +48,4 @@ export default function ProductList() {
     </Container>
   );
 }
+
