@@ -1,7 +1,8 @@
 import React from "react";
-import { Card, Button, Container, Row, Col, Spinner } from "react-bootstrap";
+import { Card,Container, Row, Col} from "react-bootstrap";
 import "./ProductList.css";
 import products from "../data/products";
+import AddToCartButton from "./AddToCartButton";
 
  export default function ProductList({handleAddToCart}){
   
@@ -38,7 +39,14 @@ import products from "../data/products";
                 <Card.Text className="card-text" style={{ fontSize: "1.1rem" }}>
                   {"₹"+product.price} 
                 </Card.Text>
-                <Button variant="warning" onClick={()=> handleAddToCart(product)}>Add to Cart</Button>
+                <AddToCartButton
+  product={{
+    id: product.id,
+    name: product.Name,
+    price: Math.floor(product.price * 83), // converting to INR
+    image: product.image || product.imageUrl || ""
+  }}
+/>
                 </div>
               </Card.Body>
             </Card>
