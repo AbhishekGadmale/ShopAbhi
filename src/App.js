@@ -1,37 +1,31 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import React from "react";
-import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import CartPage from "./components/CartPage";
-import AmazonNavbar from "./components/Navbar";
-import ProductList from "./components/ProductList";
+import "./App.css";
+
 import { CartProvider } from "./context/CartContext";
+import AmazonNavbar from "./components/Navbar";
 import Home from "./pages/Home";
-import Checkout from "./pages/Checkout";
+import ProductList from "./components/ProductList";
+import CartPage from "./components/CartPage";
+import CheckOut from "./pages/CheckOut.js";
 
 function App() {
   return (
-    <div>
-    
     <CartProvider>
-     
-      <Router>
+      <BrowserRouter>
         <AmazonNavbar />
+
         <div className="container mt-4">
           <Routes>
-            <Route path="/checkout" element={<Checkout />} />
-            {/* Home route shows Home component (optional intro section) */}
             <Route path="/" element={<Home />} />
-            {/* Product page */}
             <Route path="/products" element={<ProductList />} />
-            {/* Cart page */}
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckOut />} />
           </Routes>
         </div>
-     
-      </Router>
+      </BrowserRouter>
     </CartProvider>
-    </div>
   );
 }
 

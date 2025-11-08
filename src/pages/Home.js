@@ -17,7 +17,7 @@ import ProductList from "../components/ProductList";
         <ProductList/>
             <section className="featured">
               
-                <h2>Our Products</h2>
+                <h2>Featured Products</h2>
                 <div className="product-grid">
                     <div className="product-card">
                         <img src="/images/product1.png" alt="Product 1"/>
