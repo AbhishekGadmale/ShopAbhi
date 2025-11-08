@@ -1,59 +1,47 @@
 import React from "react";
-import { Card,Container, Row, Col} from "react-bootstrap";
+import { useCart } from "../context/CartContext";
 import "./ProductList.css";
 import products from "../data/products";
-import AddToCartButton from "./AddToCartButton";
+// const products = [
+//   { id: 1, name: "Smart Watch", price: 2999, image: "/images/smartwatch.jpg" },
+//   { id: 2, name: "Headphones", price: 1999, image: "/images/wirelessheadphone.jpg" },
+//   { id: 3, name: "Speaker", price: 1499, image: "/images/speaker.jpg" },
+//   { id: 4, name: "Snacks", price: 999, image: "/images/snacks.jpg" },
+// ];
 
- export default function ProductList({handleAddToCart}){
-  
+function ProductList() {
+  const { addToCart } = useCart();
+  console.log("Loaded Products",products)
 
   return (
-    <Container  className="mt-4">
-      <Row className="product-grid justify-content-center">
-        {products.map((product) => (
-          <Col key={product.id} md={3} className="product-grid mb-4">
-            <Card className="product-card h-100 text-center shadow-sm">
-              <Card.Img
-                variant="top"
-                src={product.image}
-                alt={product.Name}
-                style={{
-                  height: "180px",
-                  objectFit: "contain",
-                  backgroundColor: "#f8f9fa",
-                  padding: "8px",
-                  borderRadius:"8px"
-                }}
+    <div>
+      <h2 className="text-center mb-4 text-light">Our Products</h2>
+      <div className="row">
+        {products.map((p) => (
+          <div key={p.id} className="col-md-3 mb-4">
+            <div className="card text-center product-card">
+              <img
+                src={p.image}
+                alt={p.name}
+                className="card-img-top"
+                style={{ height: "200px", objectFit: "cover" }}
               />
-              <Card.Body>
-                <Card.Title className="card-title"
-                  style={{
-                    fontSize: "1rem",
-                    fontWeight: "bold",
-                    minHeight: "50px",
-                  }}
+              <div className="card-body ">
+                <h5 className="card-title">{p.name}</h5>
+                <p className="card-text">₹{p.price}</p>
+                <button
+                  onClick={() => addToCart(p)}
+                  className="btn btn-warning"
                 >
-                  {product.Name}
-                </Card.Title>
-                <div>
-                <Card.Text className="card-text" style={{ fontSize: "1.1rem" }}>
-                  {"₹"+product.price} 
-                </Card.Text>
-                <AddToCartButton
-  product={{
-    id: product.id,
-    name: product.Name,
-    price: Math.floor(product.price * 83), // converting to INR
-    image: product.image || product.imageUrl || ""
-  }}
-/>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
         ))}
-      </Row>
-    </Container>
+      </div>
+    </div>
   );
 }
 
+export default ProductList;

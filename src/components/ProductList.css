@@ -31,15 +31,15 @@
 }
 .product-card h3,.product-card .card-title {
     font-size: 1rem;
-    margin-top: 8px;
+    margin-top: 5px;
 }
 .product-card .card-title {
     font-size: 1rem;
     margin: 6px 0 4px;
     color: #ff9900;
-    min-height: 48px;
+    min-height: 30px;
     display:-webkit-box;
-    -webkit-line-clamp: 2;
+    
     -webkit-box-orient:vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -58,6 +58,7 @@
     padding: 6px 12px;
     transition: background 0.3s;
     margin-top: auto;
+
 }
 .product-card button:hover{
     background-color: #ffb347;

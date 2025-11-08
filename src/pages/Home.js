@@ -1,22 +1,23 @@
 import React from "react";
 import "./Home.css";
+import ProductList from "../components/ProductList";
 
  function Home(){
     return (
-       
-       
+       <div>
+    
        <div className="home">
-       
-            <section className="hero"> 
-                <div classname="hero-content">
+        <section className="hero"> 
+                <div className="hero-content">
                     <h1>Welcome to <span>ShopAbhi</span></h1>
                     <p>Discover amazing deals and latest products today!</p>
-                    <button classname="shop-btn">Shop Now</button>
+                    <button className="shop-btn">Shop Now</button>
                 </div>
             </section>
-        
+        <ProductList/>
             <section className="featured">
-                <h2>Featured Products</h2>
+              
+                <h2>Our Products</h2>
                 <div className="product-grid">
                     <div className="product-card">
                         <img src="/images/product1.png" alt="Product 1"/>
@@ -43,7 +44,7 @@ import "./Home.css";
         <p>© 2025 ShopAbhi. All rights reserved.</p>
       </footer>
         </div>
-       
+       </div>
     );
 };
 export default Home;

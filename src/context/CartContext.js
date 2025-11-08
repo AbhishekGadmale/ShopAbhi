@@ -1,60 +1,70 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState, useMemo, useContext } from "react";
 
 export const CartContext = createContext();
 
-export default function CartProvider({ children }) {
-  const [cart, setCart] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("cartItems")) || [];
-    } catch {
-      return [];
-    }
-  });
-
-  // persist to localStorage whenever cart changes
-  useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cart));
-  }, [cart]);
+export function CartProvider({ children }) {
+  const [cartItems, setCartItems] = useState([]);
 
   const addToCart = (product) => {
-    setCart((prev) => {
-      const exists = prev.find((p) => p.id === product.id);
-      if (exists) {
-        // increase quantity
-        return prev.map((p) =>
-          p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
+    setCartItems((prev) => {
+      const existing = prev.find((item) => item.id === product.id);
+      if (existing) {
+        return prev.map((item) =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      // add new with qty 1
       return [...prev, { ...product, quantity: 1 }];
     });
   };
 
-  const increaseQty = (id) =>
-    setCart((prev) => prev.map(i => i.id === id ? { ...i, quantity: i.quantity + 1 } : i));
+  const removeFromCart = (productId) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== productId));
+  };
 
-  const decreaseQty = (id) =>
-    setCart((prev) => prev.map(i => i.id === id && i.quantity > 1 ? { ...i, quantity: i.quantity - 1 } : i));
+  const increaseQuantity = (productId) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+  };
 
-  const removeItem = (id) => setCart((prev) => prev.filter(i => i.id !== id));
+  const decreaseQuantity = (productId) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === productId && item.quantity > 1
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      )
+    );
+  };
 
-  const clearCart = () => setCart([]);
+  const cartCount = useMemo(
+    () => cartItems.reduce((total, item) => total + item.quantity, 0),
+    [cartItems]
+  );
 
-  const cartCount = cart.reduce((acc, i) => acc + i.quantity, 0);
-  const cartTotal = cart.reduce((acc, i) => acc + i.price * i.quantity, 0);
+  const cartTotal = useMemo(
+    () => cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
+    [cartItems]
+  );
 
   return (
-    <CartContext.Provider value={{
-      cart,
-      addToCart,
-      increaseQty,
-      decreaseQty,
-      removeItem,
-      clearCart,
-      cartCount,
-      cartTotal
-    }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        increaseQuantity,
+        decreaseQuantity,
+        cartCount,
+        cartTotal,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 }
+
+// ✅ Custom hook (easy use in components)
+export const useCart = () => useContext(CartContext);
