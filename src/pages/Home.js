@@ -1,8 +1,13 @@
-import React from "react";
+import React,{useRef} from "react";
 import "./Home.css";
 import ProductList from "../components/ProductList";
 
+
  function Home(){
+    const sectionRef=useRef(null);
+    const scrollTosection=()=>{
+        sectionRef.current?.scrollIntoView({behavior:'smooth'});
+    };
     return (
        <div>
     
@@ -11,13 +16,13 @@ import ProductList from "../components/ProductList";
                 <div className="hero-content">
                     <h1>Welcome to <span>ShopAbhi</span></h1>
                     <p>Discover amazing deals and latest products today!</p>
-                    <button className="shop-btn">Shop Now</button>
+                    <button className="shop-btn" onClick={scrollTosection}>Shop Now</button>
                 </div>
             </section>
         <ProductList/>
             <section className="featured">
               
-                <h2>Featured Products</h2>
+                <h2 ref={sectionRef}>Featured Products</h2>
                 <div className="product-grid">
                     <div className="product-card">
                         <img src="/images/product1.png" alt="Product 1"/>

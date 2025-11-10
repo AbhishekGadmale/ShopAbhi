@@ -9,14 +9,16 @@ import Home from "./pages/Home";
 import ProductList from "./components/ProductList";
 import CartPage from "./components/CartPage";
 import CheckOut from "./pages/CheckOut.js";
+import { SearchProvider } from "./context/searchBar.js";
 
 function App() {
   return (
-    <CartProvider>
+   <SearchProvider>
+   <CartProvider>
       <BrowserRouter>
         <AmazonNavbar />
 
-        <div className="container mt-4">
+        <div className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<ProductList />} />
@@ -26,6 +28,7 @@ function App() {
         </div>
       </BrowserRouter>
     </CartProvider>
+    </SearchProvider>
   );
 }
 
