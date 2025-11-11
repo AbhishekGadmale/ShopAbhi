@@ -2,7 +2,6 @@ import React,{useRef} from "react";
 import "./Home.css";
 import ProductList from "../components/ProductList";
 
-
  function Home(){
     const sectionRef=useRef(null);
     const scrollTosection=()=>{
@@ -28,7 +27,7 @@ import ProductList from "../components/ProductList";
                         <img src="/images/product1.png" alt="Product 1"/>
                         <h3>Smartwatch</h3>
                         <p>₹1999</p>
-                        <button>Add to Cart</button>
+                        <button >Add to Cart</button>
                     </div>
                     <div className="product-card">
                         <img src="/images/product2.jpg" alt="Product 2"/>

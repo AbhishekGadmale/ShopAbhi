@@ -10,6 +10,7 @@ import ProductList from "./components/ProductList";
 import CartPage from "./components/CartPage";
 import CheckOut from "./pages/CheckOut.js";
 import { SearchProvider } from "./context/searchBar.js";
+import SearchResults from "./pages/SearchResults";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/products" element={<ProductList />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckOut />} />
+            <Route path="/search" element={<SearchResults />} />
           </Routes>
         </div>
       </BrowserRouter>

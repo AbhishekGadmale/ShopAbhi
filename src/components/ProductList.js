@@ -3,6 +3,7 @@ import { useCart } from "../context/CartContext";
 import "./ProductList.css";
 import products from "../data/products";
 import { useSearch } from "../context/searchBar";
+import { useLocation } from "react-router-dom";
 // const products = [
 //   { id: 1, name: "Smart Watch", price: 2999, image: "/images/smartwatch.jpg" },
 //   { id: 2, name: "Headphones", price: 1999, image: "/images/wirelessheadphone.jpg" },
@@ -11,11 +12,13 @@ import { useSearch } from "../context/searchBar";
 // ];
 
 function ProductList() {
-  const { addToCart } = useCart();
+  const{ addToCart } = useCart();
   const {searchTerm}=useSearch();
   console.log("Loaded Products",products)
+  const location=useLocation();
+  const isSearchPage=location.pathname.includes("/search");
 
-  const filteredProducts=products.filter((product)=>product.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredProducts= isSearchPage? products.filter((product)=>product.name.toLowerCase().includes(searchTerm.toLowerCase())):products;
   return (
     <div>
       <h2 className="text-center mb-4 text-light">Our Products</h2>

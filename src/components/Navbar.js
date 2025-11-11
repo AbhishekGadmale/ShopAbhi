@@ -2,11 +2,18 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useSearch } from "../context/searchBar";
+import { useNavigate } from "react-router-dom";
 
 function AmazonNavbar() {
   const { cartCount } = useCart();
   const { searchTerm, setSearchTerm } = useSearch();
-
+const navigate =useNavigate();
+const handleSearch=(e)=>{
+  e.preventDefault();
+  if (searchTerm.trim() !==""){
+    navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+  }
+};
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4">
       {/* Brand */}
@@ -16,6 +23,7 @@ function AmazonNavbar() {
 
       {/* Search Bar */}
       <div className="flex-grow-1 mx-3">
+        <form onSubmit={handleSearch} className="d-flex w-50 mx-3">
         <input
           type="text"
           className="form-control rounded-pill px-3 shadow-sm"
@@ -27,7 +35,13 @@ function AmazonNavbar() {
           placeholder="🔍 Search products..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e)=>{
+            if(e.key ==="Enter") {
+              navigate(`/search?q=$ {searchTerm}`);
+            }
+          }}
         />
+        </form>
       </div>
 
       {/* Nav Buttons */}
