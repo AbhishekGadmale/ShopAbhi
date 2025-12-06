@@ -114,4 +114,4 @@ import "./Checkout.css";
   );
 }
 
-export default CheckOut;
+export default Checkout;
