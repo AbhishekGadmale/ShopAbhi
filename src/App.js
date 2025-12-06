@@ -8,11 +8,7 @@ import AmazonNavbar from "./components/Navbar";
 import Home from "./pages/Home";
 import ProductList from "./components/ProductList";
 import CartPage from "./components/CartPage";
-<<<<<<< HEAD
-import CheckOut from "./pages/CheckOut.js";
-=======
-import Checkout from "./pages/Checkout.js";
->>>>>>> cd9b82bd6ed891b4218c510c4ae7463e2ec62d04
+import CheckOut from "./pages/Checkout.js";
 import { SearchProvider } from "./context/searchBar.js";
 import SearchResults from "./pages/SearchResults";
 import ProductDetails from "./pages/ProductDetails.js";
