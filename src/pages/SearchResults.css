@@ -87,3 +87,8 @@
   font-size: 0.9rem;
   color: #ccc;
 }
+@media(max-width:768px){
+  .mobile{
+    margin-left: 30px;
+  }
+}

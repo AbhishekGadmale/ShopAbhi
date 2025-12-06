@@ -104,7 +104,9 @@ function SearchResults() {
                   <p className="category-text">{p.category}</p>
                   <button
                     className="btn btn-warning btn-sm"
-                    onClick={() => addToCart(p)}
+                    onClick={() => {
+                      
+                      addToCart(p)}}
                   >
                     Add to Cart
                   </button>

@@ -1,3 +1,6 @@
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import React,{useRef} from "react";
 import "./Home.css";
 import ProductList from "../components/ProductList";
@@ -9,8 +12,29 @@ import ProductList from "../components/ProductList";
     };
     return (
        <div>
-    
-       <div className="home">
+    {/* Flipkart Style Banner Slider */}
+<div className="banner-slider" style={{ marginTop: "10px" }}>
+  <Slider
+    autoplay
+    autoplaySpeed={2500}
+    infinite
+    dots
+    arrows={false}
+    slidesToShow={1}
+    slidesToScroll={1}
+  >
+    <div>
+      <img src="/images/HeroSlider.png" alt="banner1" />
+    </div>
+    <div>
+      <img src="/images/HeroSlider1.jpg" alt="banner2" />
+    </div>
+    <div>
+      <img src="/images/HeroSlider2.jpg" alt="banner3" />
+    </div>
+  </Slider>
+</div>
+       <div className=" home-container text-center">
         <section className="hero"> 
                 <div className="hero-content">
                     <h1>Welcome to <span>ShopAbhi</span></h1>
@@ -41,6 +65,13 @@ import ProductList from "../components/ProductList";
                         <p>₹1499</p>
                         <button>Add to Cart</button>
                     </div>
+                      <div className="product-card">
+                        <img src="/images/product2.jpg" alt="Product 2"/>
+                        <h3>Wireless Earbuds</h3>
+                        <p>₹2499</p>
+                        <button>Add to Cart</button>
+                        </div>
+                        
                 </div>
             </section>
              {/* Footer Section*/}

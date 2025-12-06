@@ -55,22 +55,28 @@
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
-  justify-items: center;
+  justify-content: center;
+ padding: 0 15px;
+ width: 100%;
+ box-sizing: border-box;
 }
 
 .product-card {
   background-color: #1a1a1a;
   border-radius: 12px;
-  padding: 15px;
+  padding: 12px;
   text-align: center;
-  width: 220px;
-  height: 320px;
+  width: 100%;
+  max-width: 200px;
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: transform 0.3s ease;
+  box-sizing: border-box;
+
 }
 
 .product-card:hover {
@@ -78,8 +84,9 @@
 }
 
 .product-card img {
-  width: 180px;
-  height: 180px;
+  width: 100%;
+  max-width: 180px;
+  height: auto;
   object-fit: contain;
   margin: 0 auto;
   display: block;
@@ -119,4 +126,63 @@
   font-size: 0.9rem;
   color: #aaa;
   margin-top: 40px;
+}
+
+
+
+@media(max-width:768px){
+  .navbar-container{
+    position: relative;
+  }
+  .cart-mobile-wrapper{
+    position:absolute;
+    top: 8px;
+    right: 12px;
+    z-index:999;
+  }
+  .navbar-search{
+    width: 100% !important;
+  }
+}
+@media (max-width:600px){
+ 
+  .home-button{
+   margin-left: 0px !important;
+  
+  }
+}
+.home-container{
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  overflow-x: hidden;
+}
+.product-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(2,1fr));
+  margin:0 auto;
+overflow-x: hidden;
+
+.product-card{
+  max-width: 180px;
+  padding: 12px;
+  margin: 0 auto;
+}
+.product-card img{
+  width: 140px;
+  height: 140px;
+}
+}
+
+/* Fix Bootstrap row overflow issue on mobile */
+@media (max-width: 600px) {
+  .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .col-6 {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
 }
