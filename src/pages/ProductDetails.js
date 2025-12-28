@@ -29,6 +29,9 @@ function ProductDetails(){
             </button>
         </div>
         </div>
+        <button className="btn btn-outline-light mt-3" onClick={() => window.history.back()}>
+            Back
+           </button>
     </div>
     );
 }

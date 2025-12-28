@@ -3,11 +3,16 @@ import React, { createContext,useEffect, useState, useMemo, useContext } from "r
 export const CartContext=createContext();
 
 export function CartProvider({ children }) {
+const clearCart = () => setCartItems([]);
+
    const [cartItems, setCartItems] = useState(()=>{
+    try{
     const savedCart=localStorage.getItem("cartItems");
     return savedCart? JSON.parse(savedCart):[];
-  });
-  
+   } catch {
+      return [];
+    }
+});
   
 
   function addToCart(product) {
@@ -67,6 +72,7 @@ useEffect(()=>{
         decreaseQuantity,
         cartCount,
         cartTotal,
+        clearCart,
       }}
     >
       {children}

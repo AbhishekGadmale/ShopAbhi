@@ -1,7 +1,7 @@
-import react from "react";
+import React from "react";
 import "./ErrorBoundary.css";
 
-class ErrorBoundary extends react.Component{
+class ErrorBoundary extends React.Component{
     constructor(props){
         super(props);
         this.state={
@@ -32,7 +32,7 @@ class ErrorBoundary extends react.Component{
             return(
                 <div className="error-boundary">
                     <div className="error-content">
-                        <h2>Opps! Something went Wrong</h2>
+                        <h2>Oops! Something went Wrong</h2>
                         <p>We encountered an unexpected error. Don't Worry , our team has been notified. </p>
                         {this.state.errorInfo && (
                         <details className="error-details">

@@ -16,7 +16,7 @@ import LoadingSpinner  from "./LoadingSpinner";
 
 function ProductList() {
 const [isLoading,setIsLoading]=useState(true);
-const [displayProducts,setDisplayPrducts]=useState([]);
+const [displayProducts,setDisplayProducts]=useState([]);
 
   const Navigate=useNavigate();
   const{ addToCart } = useCart();
@@ -33,7 +33,7 @@ const [displayProducts,setDisplayPrducts]=useState([]);
     setIsLoading(true);
     const timer=setTimeout(()=>{
       const filtered = isSearchPage? products.filter((product)=> product.name.toLowerCase().includes(searchTerm.toLowerCase())):products;
-      setDisplayPrducts(filtered);
+      setDisplayProducts(filtered);
       setIsLoading(false);
 
     },800);
@@ -54,6 +54,7 @@ clone.style.width=imgRect.width+"px";
 clone.style.height=imgRect.height+"px";
 clone.style.transition="all 0.7s ease-in-out";
 clone.style.zIndex="9999";
+clone.style.objectFit="contain";
 document.body.appendChild(clone);
 
 requestAnimationFrame(()=>{
@@ -96,7 +97,11 @@ if (isLoading){
                     flyToCartAnimation(img);
                     e.stopPropagation();
                     addToCart(p);
-                  setAddedItems(prev => new Set(prev).add(p.id));
+                  setAddedItems(prev => {
+                            const next = new Set(prev);
+                                      next.add(p.id);
+                                  return next;
+                                      });
                   }
                 }
                 >

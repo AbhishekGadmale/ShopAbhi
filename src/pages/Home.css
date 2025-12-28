@@ -163,7 +163,7 @@
   grid-template-columns: repeat(auto-fit,minmax(2,1fr));
   margin:0 auto;
 overflow-x: hidden;
-
+}
 .product-card{
   max-width: 180px;
   padding: 12px;
@@ -173,7 +173,7 @@ overflow-x: hidden;
   width: 140px;
   height: 140px;
 }
-}
+
 
 /* Fix Bootstrap row overflow issue on mobile */
 @media (max-width: 600px) {

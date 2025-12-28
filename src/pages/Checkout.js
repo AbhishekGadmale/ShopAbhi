@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import "./Checkout.css";
+import { useCart } from "../context/CartContext";
+
+
 
  function CheckOut() {
   const [formData, setFormData] = useState({
@@ -11,7 +14,10 @@ import "./Checkout.css";
   });
 
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const { cartItems, cartTotal } = useCart();
 
+// On success:
+// clearCart();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -28,6 +34,8 @@ import "./Checkout.css";
 
     // Simulate order success
     setOrderPlaced(true);
+   
+  
     setFormData({
       name: "",
       email: "",
@@ -38,11 +46,31 @@ import "./Checkout.css";
   };
 
   if (orderPlaced) {
+    
     return (
-      <div className="checkout-success">
+    
+      <div className="order-success">
+        
         <h2>🎉 Order Placed Successfully!</h2>
         <p>Thank you for shopping with <strong>ShopAbhi</strong>.</p>
         <p>Your items will be delivered soon!</p>
+        <div className="card-header bg-light">
+      <h2 className="mb-0">Order Summary</h2>
+
+      {cartItems.map((item) => (
+        <div key={item.id} className="order-item order-summary">
+          <p><strong>{item.name}</strong></p>
+          <img src={item.image} alt={item.name} style={{width:"100px",height:"100px",objectFit:"contain"}}/>
+          <p>Price: ${item.price}</p>
+          <p>Quantity: {item.quantity}</p>
+          <p>Subtotal: ${item.price * item.quantity}</p>
+          <hr />
+        </div>))}
+         <h3>Total: ${cartTotal}</h3>
+        </div>
+         <button className="btn btn-outline-light mt-1" onClick={() => window.history.back()}>
+             Back
+         </button>
       </div>
     );
   }
@@ -110,6 +138,9 @@ import "./Checkout.css";
           Place Order
         </button>
       </form>
+        <button className="btn btn-outline-light mt-3" onClick={() => window.history.back()}>
+            Back
+           </button>
     </div>
   );
 }

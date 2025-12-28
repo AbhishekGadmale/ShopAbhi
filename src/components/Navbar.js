@@ -15,15 +15,9 @@ const handleSearch=(e)=>{
   }
 };
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4 navbar-container" 
-    style={{position:'fixed',
-      top:0,
-      left:0,
-      width:'100%',
-      zIndex:9999,
-      backgroundColor: '#343a40 !important',
-      border:"1px solid white"
-    }}>
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4 navbar-container navbar-fixed-top" style={{position:'fixed',top:0,width:'100%',zIndex:1000}}
+    
+    >
       {/* Brand */}
       <Link to="/" className="navbar-brand text-warning fw-bold fs-4">
         ShopAbhi

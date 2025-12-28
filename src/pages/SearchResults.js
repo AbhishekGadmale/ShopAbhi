@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import products from "../data/products";
 import { useCart } from "../context/CartContext";
 import "./SearchResults.css";
-
+import { useNavigate } from "react-router-dom";
 function SearchResults() {
   const { search } = useLocation();
   const query = new URLSearchParams(search).get("q")?.toLowerCase() || "";
@@ -11,6 +11,8 @@ function SearchResults() {
 
   const [selectedPrices, setSelectedPrices] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+const navigate = useNavigate();
+
 
   const priceRanges = [
     { label: "Under ₹1000", min: 0, max: 1000 },
@@ -97,7 +99,7 @@ function SearchResults() {
           <div className="results-grid">
             {filtered.map((p) => (
               <div key={p.id} className="result-card">
-                <img src={p.image} alt={p.name} className="result-img" />
+                <img onClick={()=> navigate(`/product/${p.id}`)} src={p.image} alt={p.name} className="result-img" />
                 <div className="result-info">
                   <h5>{p.name}</h5>
                   <p className="price">₹{p.price}</p>
@@ -105,18 +107,24 @@ function SearchResults() {
                   <button
                     className="btn btn-warning btn-sm"
                     onClick={() => {
-                      
+                     
                       addToCart(p)}}
                   >
                     Add to Cart
                   </button>
                 </div>
+              
               </div>
             ))}
           </div>
         )}
+        <button className="btn btn-outline-light mt-3" onClick={() => window.history.back()}>
+  Back
+</button>
       </div>
+    
     </div>
+  
   );
 }
 

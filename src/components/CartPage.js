@@ -10,6 +10,7 @@ function CartPage() {
     increaseQuantity,
     decreaseQuantity,
     cartTotal,
+    clearCart,
   } = useCart();
 
   return (
@@ -17,7 +18,9 @@ function CartPage() {
       <h2 className="text-center text-light mb-4">Your Cart</h2>
 
       {cartItems.length === 0 ? (
-        <p className="text-center text-muted">Your cart is empty.</p>
+        <><p className="text-center text-muted">Your cart is empty.</p><button className="btn btn-outline-light mt-3" onClick={() => window.history.back()}>
+          Back
+        </button></>
       ) : (
         <>
           {/* Table Section */}
@@ -39,7 +42,7 @@ function CartPage() {
                   <td>{item.price}</td>
                   <td>
                     <button
-                      onClick={() => decreaseQuantity(item.id)}
+                     disabled={item.quantity <=1} onClick={() => decreaseQuantity(item.id)}
                       className="btn btn-sm btn-outline-light mx-1"
                     >
                       -
@@ -52,7 +55,7 @@ function CartPage() {
                       +
                     </button>
                   </td>
-                  <td>{item.price * item.quantity}</td>
+                  <td>₹{(item.price * item.quantity).toLocaleString("en-IN")}</td>
                   <td>
                     <button
                       onClick={() => removeFromCart(item.id)}
@@ -69,7 +72,7 @@ function CartPage() {
                   Total:
                 </td>
                 <td colSpan="2" className="fw-bold text-warning">
-                  ₹{cartTotal}
+                 ₹{cartTotal.toLocaleString("en-IN")}
                 </td>
               </tr>
             </tbody>
@@ -83,7 +86,12 @@ function CartPage() {
             >
               Proceed to Checkout
             </button>
+            <button className="btn btn-danger mt-3" onClick={clearCart}>Clear Cart</button>
+            
           </div>
+             <button className="btn btn-outline-light mt-3" onClick={() => window.history.back()}>
+            Back
+           </button>
         </>
       )}
     </div>
