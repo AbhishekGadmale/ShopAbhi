@@ -38,8 +38,9 @@ function CartPage() {
             <tbody>
               {cartItems.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.name}</td>
+                  <td>{item.name} <br/><img src={item.image} alt={item.name} onClick={()=> navigate(`/product/${item.id}`)} style={{width:"100px",height:"100px",objectFit:"contain"}}/></td>
                   <td>{item.price}</td>
+                  
                   <td>
                     <button
                      disabled={item.quantity <=1} onClick={() => decreaseQuantity(item.id)}

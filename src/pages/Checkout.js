@@ -4,6 +4,7 @@ import { useCart } from "../context/CartContext";
 
 
 
+
  function CheckOut() {
   const [formData, setFormData] = useState({
     name: "",
@@ -15,7 +16,7 @@ import { useCart } from "../context/CartContext";
 
   const [orderPlaced, setOrderPlaced] = useState(false);
   const { cartItems, cartTotal } = useCart();
-
+ const { clearCart } = useCart();
 // On success:
 // clearCart();
   const handleChange = (e) => {
@@ -31,10 +32,14 @@ import { useCart } from "../context/CartContext";
       alert("Please fill all required fields!");
       return;
     }
+    if (formData.paymentMethod==="upi"){
+      alert("UPI payment method is currently unavailable. Please choose another method.");
+      return;
+    }
 
     // Simulate order success
     setOrderPlaced(true);
-   
+    
   
     setFormData({
       name: "",
@@ -44,13 +49,13 @@ import { useCart } from "../context/CartContext";
       paymentMethod: "cod",
     });
   };
+ 
 
   if (orderPlaced) {
     
-    return (
-    
+       return (
+     
       <div className="order-success">
-        
         <h2>🎉 Order Placed Successfully!</h2>
         <p>Thank you for shopping with <strong>ShopAbhi</strong>.</p>
         <p>Your items will be delivered soon!</p>
@@ -74,7 +79,7 @@ import { useCart } from "../context/CartContext";
       </div>
     );
   }
-
+ 
   return (
     <div className="checkout-container">
       <h2>Checkout</h2>
@@ -143,6 +148,7 @@ import { useCart } from "../context/CartContext";
            </button>
     </div>
   );
+
 }
 
 export default CheckOut;
