@@ -22,6 +22,9 @@ const handleSearch=(e)=>{
       <Link to="/" className="navbar-brand text-warning fw-bold fs-4">
         ShopAbhi
       </Link>
+      <Link to="/orders" className="btn btn-outline-light mx-2">
+         My Orders
+        </Link>
 
       {/* Search Bar */}
       <div className="flex-grow-1 mx-3 search-bar">

@@ -14,9 +14,21 @@ import { useCart } from "../context/CartContext";
     paymentMethod: "cod",
   });
 
+  
   const [orderPlaced, setOrderPlaced] = useState(false);
   const { cartItems, cartTotal } = useCart();
- const { clearCart } = useCart();
+ const {placeOrder}=useCart();
+ const [placedOrder,setPlacedOrder]=useState(null);
+
+ const OrderData = {
+    name: formData.name,
+    email: formData.email,
+    phone: formData.phone,
+    address: formData.address,
+    paymentMethod: formData.paymentMethod,
+    items: cartItems,
+    total: cartTotal,
+  }
 // On success:
 // clearCart();
   const handleChange = (e) => {
@@ -36,8 +48,15 @@ import { useCart } from "../context/CartContext";
       alert("UPI payment method is currently unavailable. Please choose another method.");
       return;
     }
+    const orderData={
+      items:cartItems,
+      total:cartTotal,
+      customer:formData,
+    }
 
     // Simulate order success
+    placeOrder(formData);
+    setPlacedOrder(orderData);
     setOrderPlaced(true);
     
   
@@ -51,8 +70,9 @@ import { useCart } from "../context/CartContext";
   };
  
 
-  if (orderPlaced) {
+  if (orderPlaced && placedOrder) {
     
+   
        return (
      
       <div className="order-success">
@@ -62,16 +82,18 @@ import { useCart } from "../context/CartContext";
         <div className="card-header bg-light">
       <h2 className="mb-0">Order Summary</h2>
 
-      {cartItems.map((item) => (
-        <div key={item.id} className="order-item order-summary">
-          <p><strong>{item.name}</strong></p>
-          <img src={item.image} alt={item.name} style={{width:"100px",height:"100px",objectFit:"contain"}}/>
-          <p>Price: ${item.price}</p>
-          <p>Quantity: {item.quantity}</p>
-          <p>Subtotal: ${item.price * item.quantity}</p>
-          <hr />
-        </div>))}
-         <h3>Total: ${cartTotal}</h3>
+      {placedOrder && placedOrder.items.map((item) => (
+  <div key={item.id} className="order-item order-summary">
+    <p><strong>{item.name}</strong></p>
+    <img src={item.image} alt={item.name} style={{width:"100px",height:"100px",objectFit:"contain"}}/>
+    <p>Price: ₹{item.price}</p>
+    <p>Quantity: {item.quantity}</p>
+    <p>Subtotal: ₹{item.price * item.quantity}</p>
+    <hr />
+  </div>
+))}
+         <h3>Total: ₹{placedOrder.total}</h3>
+       
         </div>
          <button className="btn btn-outline-light mt-1" onClick={() => window.history.back()}>
              Back

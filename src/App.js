@@ -13,7 +13,7 @@ import { SearchProvider } from "./context/searchBar.js";
 import SearchResults from "./pages/SearchResults";
 import ProductDetails from "./pages/ProductDetails.js";
 import ErrorBoundary from "./components/ErrorBoundary.js";
-
+import OrderHistory from "./pages/OrderHistory.jsx";
 function App() {
   return (
     <ErrorBoundary>
@@ -30,6 +30,7 @@ function App() {
             <Route path="/checkout" element={<CheckOut />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/orders" element={<OrderHistory />} />
           </Routes>
         </div>
       </BrowserRouter>

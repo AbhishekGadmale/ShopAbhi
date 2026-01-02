@@ -77,3 +77,9 @@ body,html,#root{
 .main-content{
   padding-top: 70px;
 }
+
+.product-card {
+  max-width: 260px;   /* increase from 200px or whatever you had */
+  min-width: 200px;   /* ensure they don’t shrink too much */
+  height: 370px;
+}

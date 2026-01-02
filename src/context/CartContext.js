@@ -4,6 +4,10 @@ export const CartContext=createContext();
 
 export function CartProvider({ children }) {
 const clearCart = () => setCartItems([]);
+const [orders,setOrders]=useState(()=>{
+  const savedOrders=localStorage.getItem("orders");
+  return savedOrders ? JSON.parse(savedOrders) : [];
+});
 
    const [cartItems, setCartItems] = useState(()=>{
     try{
@@ -62,6 +66,21 @@ useEffect(()=>{
     localStorage.setItem("cartItems",JSON.stringify(cartItems));
   },[cartItems]);
 
+const placeOrder=(orderDetails)=>{
+const newOrder={
+  id:Date.now(),
+  items:cartItems,
+  total:cartTotal,
+  details:orderDetails,
+};
+setOrders((prev)=> [...prev,newOrder]);
+setCartItems([]);
+}
+
+useEffect(() => {
+  localStorage.setItem("orders", JSON.stringify(orders));
+}, [orders]);
+
   return (
     <CartContext.Provider
       value={{
@@ -73,6 +92,8 @@ useEffect(()=>{
         cartCount,
         cartTotal,
         clearCart,
+        orders,
+        placeOrder,
       }}
     >
       {children}
