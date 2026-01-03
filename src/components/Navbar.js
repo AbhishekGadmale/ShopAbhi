@@ -3,10 +3,13 @@ import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useSearch } from "../context/searchBar";
 import { useNavigate } from "react-router-dom";
+import {useAuth}  from "../context/AuthContext";
 
-function AmazonNavbar() {
+ function AmazonNavbar() {
+  
   const { cartCount } = useCart();
   const { searchTerm, setSearchTerm } = useSearch();
+  const {user,logout}=useAuth();
 const navigate =useNavigate();
 const handleSearch=(e)=>{
   e.preventDefault();
@@ -25,6 +28,7 @@ const handleSearch=(e)=>{
       <Link to="/orders" className="btn btn-outline-light mx-2">
          My Orders
         </Link>
+       
 
       {/* Search Bar */}
       <div className="flex-grow-1 mx-3 search-bar">
@@ -66,7 +70,19 @@ const handleSearch=(e)=>{
           )}
         </Link>
         </div>
+        {user ? (
+  <button className="btn btn-outline-light mx-2" onClick={logout}>
+    Logout ({user.email})
+  </button>
+) : (
+  <Link to="/login" className="btn btn-outline-light mx-2">
+    Login
+  </Link>
+)}
+
+
       </div>
+      
     </nav>
   );
 }

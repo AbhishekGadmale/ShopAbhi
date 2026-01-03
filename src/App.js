@@ -14,11 +14,15 @@ import SearchResults from "./pages/SearchResults";
 import ProductDetails from "./pages/ProductDetails.js";
 import ErrorBoundary from "./components/ErrorBoundary.js";
 import OrderHistory from "./pages/OrderHistory.jsx";
+import { AuthProvider } from "./context/AuthContext";
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 function App() {
   return (
     <ErrorBoundary>
    <SearchProvider>
    <CartProvider>
+     <AuthProvider>
       <BrowserRouter>
         <AmazonNavbar />
 
@@ -27,13 +31,15 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<ProductList />} />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckOut />} />
+            <Route path="/checkout" element={<ProtectedRoute><CheckOut /></ProtectedRoute>} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/orders" element={<OrderHistory />} />
+            <Route path="/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
+            <Route path="/login" element={<Login />} />
           </Routes>
-        </div>
+        </div>  
       </BrowserRouter>
+      </AuthProvider>
     </CartProvider>
     </SearchProvider>
     </ErrorBoundary>
