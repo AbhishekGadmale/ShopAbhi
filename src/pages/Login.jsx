@@ -1,17 +1,35 @@
 import React,{useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
+ 
+  function Login(){
 
-function Login(){
+    
     const {login}=useAuth();
     const navigate= useNavigate();
     const [formdata,setFormdata]=useState({email:"",password:""});
-
-    const handleSubmit=(e)=>{
-        e.preventDefault();
+     const handleSubmit=async(e)=>{
+           e.preventDefault();
         login(formdata.email,formdata.password);
         navigate("/");
+
+         const response = await fetch("http://localhost:5000/api/auth/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email: formdata.email, password: formdata.password })
+});
+const data = await response.json();
+if (response.ok) {
+  localStorage.setItem("token", data.token);
+  login(formdata.email, formdata.password); // update context
+  navigate("/");
+} else {
+  alert(data.error);
+}
     };
+   
+
+
     return (
         <div className="container mt-5 text-light">
             <form onSubmit={handleSubmit} className="w-50 mx-auto">
@@ -25,6 +43,7 @@ function Login(){
                 </div>
                 <button type="submit" className="btn btn-warning w-100">Login</button>
             </form>
+      
         </div>
     )
 }

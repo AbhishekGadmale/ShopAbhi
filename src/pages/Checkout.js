@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Checkout.css";
 import { useCart } from "../context/CartContext";
-
+import { fetchWithAuth } from "../api/client";
 
 
 
@@ -17,18 +17,9 @@ import { useCart } from "../context/CartContext";
   
   const [orderPlaced, setOrderPlaced] = useState(false);
   const { cartItems, cartTotal } = useCart();
- const {placeOrder}=useCart();
+ //const {placeOrder}=useCart();
  const [placedOrder,setPlacedOrder]=useState(null);
 
- const OrderData = {
-    name: formData.name,
-    email: formData.email,
-    phone: formData.phone,
-    address: formData.address,
-    paymentMethod: formData.paymentMethod,
-    items: cartItems,
-    total: cartTotal,
-  }
 // On success:
 // clearCart();
   const handleChange = (e) => {
@@ -36,9 +27,9 @@ import { useCart } from "../context/CartContext";
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+const token= localStorage.getItem("token");
     // Basic validation
     if (!formData.name || !formData.phone || !formData.address) {
       alert("Please fill all required fields!");
@@ -48,32 +39,63 @@ import { useCart } from "../context/CartContext";
       alert("UPI payment method is currently unavailable. Please choose another method.");
       return;
     }
-    const orderData={
-      items:cartItems,
-      total:cartTotal,
-      customer:formData,
-    }
-
-    // Simulate order success
-    placeOrder(formData);
-    setPlacedOrder(orderData);
-    setOrderPlaced(true);
     
+    if(!token){
+      alert("You Must be Logged in to place an Order")
+      return;
+    }
+    const orderData={
+      items:cartItems.map(item=>({
+        name:item.name,
+        price:item.price,
+        quantity:item.quantity,
+        image:item.image
+      })),
+      total:cartTotal,
+      details:{
+        name:formData.name,
+         email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      paymentMethod: formData.paymentMethod,
+      },
+    };
+
+    try {
+      const res = await fetchWithAuth("/api/orders", {
+  method: "POST",
+  body: JSON.stringify(orderData),
+});
+
+      const data= await res.json();
+       
+      if (res.status === 201) {
+      setPlacedOrder(data.order);   // backend returns saved order
+      setOrderPlaced(true);
+      setFormData({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    paymentMethod: "cod",
+  });
+      // Optionally clear cart here
+      // clearCart();
+    } else {
+      alert(data.error || "Failed to place order.");
+    }
+  } catch (err) {
+    alert("Network error. Is the backend running?");
+  }
+// Reset form
   
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      paymentMethod: "cod",
-    });
   };
  
 
   if (orderPlaced && placedOrder) {
     
    
-       return (
+    return (
      
       <div className="order-success">
         <h2>🎉 Order Placed Successfully!</h2>
@@ -82,10 +104,10 @@ import { useCart } from "../context/CartContext";
         <div className="card-header bg-light">
       <h2 className="mb-0">Order Summary</h2>
 
-      {placedOrder && placedOrder.items.map((item) => (
-  <div key={item.id} className="order-item order-summary">
+      {placedOrder && placedOrder.items.map((item,idx) => (
+  <div key={idx} className="order-item order-summary">
     <p><strong>{item.name}</strong></p>
-    <img src={item.image} alt={item.name} style={{width:"100px",height:"100px",objectFit:"contain"}}/>
+    {item.name && <img src={item.image} alt={item.name} style={{width:"100px",height:"100px",objectFit:"contain"}}/>}
     <p>Price: ₹{item.price}</p>
     <p>Quantity: {item.quantity}</p>
     <p>Subtotal: ₹{item.price * item.quantity}</p>
@@ -169,8 +191,8 @@ import { useCart } from "../context/CartContext";
             Back
            </button>
     </div>
-  );
+ )};
 
-}
+
 
 export default CheckOut;

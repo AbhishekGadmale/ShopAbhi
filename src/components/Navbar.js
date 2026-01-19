@@ -75,9 +75,14 @@ const handleSearch=(e)=>{
     Logout ({user.email})
   </button>
 ) : (
+  <>
   <Link to="/login" className="btn btn-outline-light mx-2">
     Login
   </Link>
+  <Link to="/signup" className="btn btn-outline-light mx-2">
+    Signup
+  </Link>
+  </>
 )}
 
 

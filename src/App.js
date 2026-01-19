@@ -17,6 +17,7 @@ import OrderHistory from "./pages/OrderHistory.jsx";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Signup from "./pages/Signup.jsx";
 function App() {
   return (
     <ErrorBoundary>
@@ -36,6 +37,7 @@ function App() {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
           </Routes>
         </div>  
       </BrowserRouter>
