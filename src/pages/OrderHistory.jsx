@@ -16,7 +16,7 @@ const OrderHistory = () => {
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/orders", {
+        const res = await fetch("http://13.48.193.189:5000/api/orders", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

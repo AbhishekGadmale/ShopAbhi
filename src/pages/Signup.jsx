@@ -10,7 +10,7 @@ const Signup = ()=>{
         e.preventDefault();
        
 
-         const response = await fetch("http://localhost:5000/api/auth/signup", {
+         const response = await fetch("http://13.48.193.189:5000/api/auth/signup", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ name: formdata.name, email: formdata.email, password: formdata.password })
