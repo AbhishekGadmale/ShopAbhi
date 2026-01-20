@@ -11,6 +11,10 @@ import {useAuth}  from "../context/AuthContext";
   const { searchTerm, setSearchTerm } = useSearch();
   const {user,logout}=useAuth();
 const navigate =useNavigate();
+const handleLogout = async () => {
+  await logout();
+  navigate("/login");
+};
 const handleSearch=(e)=>{
   e.preventDefault();
   if (searchTerm.trim() !==""){
@@ -71,7 +75,7 @@ const handleSearch=(e)=>{
         </Link>
         </div>
         {user ? (
-  <button className="btn btn-outline-light mx-2" onClick={logout}>
+  <button className="btn btn-outline-light mx-2" onClick={handleLogout}>
     Logout ({user.email})
   </button>
 ) : (

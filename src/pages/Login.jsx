@@ -10,18 +10,19 @@ import {useAuth} from "../context/AuthContext";
     const [formdata,setFormdata]=useState({email:"",password:""});
      const handleSubmit=async(e)=>{
            e.preventDefault();
-        login(formdata.email,formdata.password);
-        navigate("/");
+      
+    
 
          const response = await fetch("http://13.48.193.189:5000/api/auth/login", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email: formdata.email, password: formdata.password })
+  credentials: "include",
+  body: JSON.stringify(formdata)
 });
 const data = await response.json();
 if (response.ok) {
   localStorage.setItem("token", data.token);
-  login(formdata.email, formdata.password); // update context
+  login(data, data.token); // update context
   navigate("/");
 } else {
   alert(data.error);
