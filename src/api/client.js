@@ -1,4 +1,4 @@
-const API_BASE = "http://13.48.193.189:5000";
+const API_BASE = "https://shopabhi-backend.onrender.com";
 
 export const fetchWithAuth = async (url, options = {}) => {
   const token = localStorage.getItem("token");
