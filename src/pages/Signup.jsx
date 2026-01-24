@@ -17,9 +17,8 @@ const Signup = ()=>{
 });
 const data = await response.json();
 if (response.ok) {
-  localStorage.setItem("token", data.token);
-  login(data.user || data.token); // simulate login after signup
-  navigate("/");
+  alert("Signup successful! Please login.");
+  navigate("/login");
 } else {
   alert(data.error);
 }

@@ -23,7 +23,7 @@ export function AuthProvider({children}) {
  useEffect(()=>{
    const token= localStorage.getItem("token");
    if(token){
-      setUser({ email: "persistedUser" }); 
+      setUser({ loggedIn: true }); 
    }
    setLoading(false);
  },[])

@@ -21,6 +21,7 @@ import {useAuth} from "../context/AuthContext";
 });
 const data = await response.json();
 if (response.ok) {
+  console.log("Login Response Data:", data);
   localStorage.setItem("token", data.accessToken);
   login(data.user, data.accessToken); // update context
   navigate("/");
