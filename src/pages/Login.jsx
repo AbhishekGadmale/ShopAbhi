@@ -13,7 +13,7 @@ import {useAuth} from "../context/AuthContext";
       
     
 
-         const response = await fetch("https://shopabhi-backend.onrender.com/api/login", {
+         const response = await fetch("https://shopabhi-backend.onrender.com/api/auth/login", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   credentials: "include",

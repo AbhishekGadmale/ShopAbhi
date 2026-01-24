@@ -10,7 +10,7 @@ const Signup = ()=>{
         e.preventDefault();
        
 
-         const response = await fetch("https://shopabhi-backend.onrender.com/api/signup", {
+         const response = await fetch("https://shopabhi-backend.onrender.com/api/auth/signup", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ name: formdata.name, email: formdata.email, password: formdata.password })
