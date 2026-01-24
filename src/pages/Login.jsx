@@ -21,8 +21,8 @@ import {useAuth} from "../context/AuthContext";
 });
 const data = await response.json();
 if (response.ok) {
-  localStorage.setItem("token", data.token);
-  login(data, data.token); // update context
+  localStorage.setItem("token", data.accessToken);
+  login(data.user, data.accessToken); // update context
   navigate("/");
 } else {
   alert(data.error);
