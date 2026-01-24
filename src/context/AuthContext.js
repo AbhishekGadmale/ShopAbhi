@@ -10,7 +10,7 @@ export function AuthProvider({children}) {
  };
  const logout = async () => {
   try {
-    await fetch("http://13.48.193.189:5000/api/auth/logout", {
+    await fetch("https://shopabhi-backend.onrender.com/api/auth/logout", {
       method: "POST",
       credentials: "include",
     });
