@@ -62,7 +62,7 @@ const token= localStorage.getItem("token");
     };
 
     try {
-      const res = await fetchWithAuth("https://shopabhi-backend.onrender.com/api/orders", {
+      const res = await fetchWithAuth("/api/auth/orders", {
   method: "POST",
   body: JSON.stringify(orderData),
 });
