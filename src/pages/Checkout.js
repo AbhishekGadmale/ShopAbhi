@@ -70,7 +70,7 @@ const token= localStorage.getItem("token");
       const data= await res.json();
        
       if (res.status === 201) {
-      setPlacedOrder(data.order);   // backend returns saved order
+      setPlacedOrder(data.orderData);   // backend returns saved order
       setOrderPlaced(true);
       setFormData({
     name: "",
