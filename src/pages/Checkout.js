@@ -80,7 +80,7 @@ const token= localStorage.getItem("token");
     paymentMethod: "cod",
   });
       // Optionally clear cart here
-      // clearCart();
+    clearCart();
     } else {
       alert(data.error || "Failed to place order.");
     }
