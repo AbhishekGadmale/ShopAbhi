@@ -16,7 +16,7 @@ const OrderHistory = () => {
           return;
         }
 
-        const res = await fetch("http://13.48.193.189:5000/api/orders", {
+        const res = await fetch("https://shopabhi-backend.onrender.com/api/orders", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
