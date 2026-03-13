@@ -22,14 +22,17 @@ export function AuthProvider({children}) {
   }
 };
 
- useEffect(()=>{
-   const token= localStorage.getItem("token");
-   if(token){
-      setUser({ loggedIn: true }); 
-   }
-   setLoading(false);
- },[])
+ useEffect(() => {
+  const token = localStorage.getItem("token");
 
+  if (token) {
+    setUser({ loggedIn: true });
+  } else {
+    setUser(null);
+  }
+
+  setLoading(false);
+}, []);
 
  return (
     <AuthContext.Provider value={{ user,login,logout,loading}}>

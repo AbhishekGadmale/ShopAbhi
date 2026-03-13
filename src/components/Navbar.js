@@ -75,9 +75,9 @@ const handleSearch=(e)=>{
           )}
         </Link>
         </div>
-        {user ? (
+        {user && user.email ? (
   <button className="btn btn-outline-light mx-2" onClick={handleLogout}>
-    Logout ({user?.email})
+    Logout ({user.email})
   </button>
 ) : (
   <>
