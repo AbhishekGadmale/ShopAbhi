@@ -14,6 +14,7 @@ const navigate =useNavigate();
 const handleLogout = async () => {
   await logout();
   navigate("/login");
+  
 };
 const handleSearch=(e)=>{
   e.preventDefault();
@@ -76,7 +77,7 @@ const handleSearch=(e)=>{
         </div>
         {user ? (
   <button className="btn btn-outline-light mx-2" onClick={handleLogout}>
-    Logout ({user.email})
+    Logout ({user?.email})
   </button>
 ) : (
   <>
