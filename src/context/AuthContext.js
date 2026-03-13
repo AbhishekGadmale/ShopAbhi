@@ -10,16 +10,26 @@ export function AuthProvider({children}) {
  };
  const logout = async () => {
   try {
-    await fetch("https://shopabhi-backend.onrender.com/api/auth/logout", {
+    const res = await fetch("https://shopabhi-backend.onrender.com/api/auth/logout", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // eslint-disable-next-line no-undef
+      body: JSON.stringify({ email, password }),
       credentials: "include",
     });
+     if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Login failed");
+    }
+
+    const data = await res.json();
+    localStorage.setItem("token", data.accessToken);
+    setUser(data.user);
   } catch (err) {
-    console.error("Logout error:", err);
+    console.error("Login error:", err.message);
   }
-  localStorage.removeItem("token");
-  setUser(null);
 };
+
  useEffect(()=>{
    const token= localStorage.getItem("token");
    if(token){

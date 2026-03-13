@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Checkout.css";
-import { useCart } from "../context/CartContext";
+import { useCart} from "../context/CartContext";
 import { fetchWithAuth } from "../api/client";
 
 
@@ -16,7 +16,7 @@ import { fetchWithAuth } from "../api/client";
 
   
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const { cartItems, cartTotal } = useCart();
+  const { cartItems, cartTotal,clearCart } = useCart();
  //const {placeOrder}=useCart();
  const [placedOrder,setPlacedOrder]=useState(null);
 
