@@ -49,7 +49,16 @@
 }
 
 .order-summary {
- margin-left: 20px;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 12px 0;
+  padding: 10px 0;
+}
+
+@media (max-width: 600px) {
+  .checkout-success {
+    margin-top: 40px;
+  }
 }

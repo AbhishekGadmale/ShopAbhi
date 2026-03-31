@@ -73,20 +73,19 @@ if (isLoading){
 }
 
   return (
-    <div>
+    <div className="product-list-wrap">
       <h2 className="text-center mb-4 text-light">Our Products</h2>
-      <div className="row">
+      <div className="row g-4 px-2 px-md-3 justify-content-center align-items-stretch">
    
         {displayProducts.map((p) => (
-          <div key={p.id} className="col-6 col-md-3 mb-4">
+          <div key={p.id} className="col-6 col-md-4 col-lg-3 col-xl-3 d-flex">
             <div className="section">
             <div className="card text-center product-card" style={{cursor:"pointer"}} 
             onClick={()=> Navigate(`/product/${p.id}`)}>
               <img
                 src={p.image}
                 alt={p.name}
-                className="card-img-top"
-                style={{height:170 ,  objectFit: "cover" }}
+                className="card-img-top product-image"
               />
               <div className="card-body ">
                 <h5 className="mt-2">{p.name}</h5>

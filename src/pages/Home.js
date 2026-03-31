@@ -34,10 +34,12 @@ import ProductList from "../components/ProductList";
     </div>
   </Slider>
 </div>
+
        <div className=" home-container text-center">
         <section className="hero"> 
                 <div className="hero-content">
                     <h1>Welcome to <span>ShopAbhi</span></h1>
+  
                     <p>Discover amazing deals and latest products today!</p>
                     <button className="shop-btn" onClick={scrollTosection}>Shop Now</button>
                 </div>

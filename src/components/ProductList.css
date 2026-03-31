@@ -1,55 +1,66 @@
-.product-card {
+.product-list-wrap {
+    padding: 0 10px 20px;
+}
+
+.section .product-card {
     background-color: #1a1a1a;
-    border: 2px solid white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
     text-align: center;
     color: white;
     padding: 0;
     transition: transform 0.3s ease;
-    height: 350px; /* Increased height for better spacing */
+    height: 100%;
+    min-height: 300px;
+    max-width: 230px;
     display: flex;
     flex-direction: column;
     justify-content: space-between; /* Changed from space-evenly */
-    box-shadow: 0 0 10px rgba(255,255, 255, 0.05);
-    margin: 50px 0 0 0; /* Simplified margin */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    margin: 0 auto;
 }
 
-.product-card .card-body {
+.section .product-card .card-body {
     display: flex; /* CHANGED: from grid to flex */
     flex-direction: column;
     justify-content: space-between; /* Better distribution */
+    gap: 8px;
     flex: 1;
     padding: 12px;
     height: auto; /* CHANGED: from fit-content */
 }
 
-.product-card:hover {
+.section .product-card:hover {
     transform: scale(1.05);
 }
 
-.product-card img {
-    height: 140px; /* Slightly reduced for better balance */
+.section .product-card img {
+    height: 120px;
     object-fit: contain;
     background-color: #ffffff;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 8px;
     width: 100%; /* Added for consistency */
 }
 
-.product-card h3, .product-card .card-title {
+.section .product-card .product-image {
+    margin-top: 10px;
+}
+
+.section .product-card h3, .section .product-card h5, .section .product-card .card-title {
     font-size: 1rem;
+    line-height: 1.25rem;
     margin: 8px 0 4px; /* Better spacing */
     color: #ff9900;
-    min-height: 30px; /* Fixed height for title */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    min-height: calc(1.25rem * 2); /* Reserve equal height for 2 lines */
+    display: -webkit-box;
     -webkit-line-clamp: 2; /* Limit to 2 lines */
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.product-card .card-text {
+.section .product-card .card-text {
     font-size: 1.05rem;
     margin: 8px 0; /* Better spacing */
     color: #fff;
@@ -59,7 +70,7 @@
     justify-content: center;
 }
 
-.product-card button {
+.section .product-card button {
     background-color: #ffa41c;
     border: none;
     color: #111;
@@ -74,18 +85,50 @@
     justify-content: center;
 }
 
-.product-card button:hover {
+@media (min-width: 992px) {
+    .product-list-wrap {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 18px 24px;
+    }
+    .section .product-card {
+        min-height: 285px;
+        max-width: 215px;
+    }
+    .section .product-card img {
+        height: 110px;
+    }
+    .section .product-card h3,
+    .section .product-card h5,
+    .section .product-card .card-title {
+        font-size: 0.95rem;
+        line-height: 1.15rem;
+        min-height: calc(1.15rem * 2);
+    }
+    .section .product-card .card-body {
+        padding: 10px;
+        gap: 6px;
+    }
+    .section .product-card .btn-warning,
+    .section .product-card .btn-success {
+        min-height: 36px;
+        font-size: 0.9rem;
+        padding: 7px 10px;
+    }
+}
+
+.section .product-card button:hover {
     background-color: #ffb347;
 }
 
-.product-grid {
+.section .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
     justify-content: center;
 }
 
-.product-card .btn-warning {
+.section .product-card .btn-warning {
     background-color: #ffa41c;
     color: #111;
     font-weight: 700;
@@ -95,11 +138,11 @@
     min-height: 40px; /* Consistent button height */
 }
 
-.product-card .btn-warning:hover {
+.section .product-card .btn-warning:hover {
     background-color: #ffb347;
 }
 
-.product-card .btn-success {
+.section .product-card .btn-success {
     background-color: #28a745; /* Green for added state */
     color: white;
     font-weight: 700;
@@ -109,19 +152,21 @@
     min-height: 40px; /* Consistent button height */
 }
 
-.product-card .btn-success:hover {
+.section .product-card .btn-success:hover {
     background-color: #218838;
 }
 
 .section {
     background-color: #0f1111;
     margin: 0px auto;
-    width: 90%;
-    max-width: 1200px;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    padding: 0 2px;
 }
 
 /* ADD THIS: Ensure consistent content distribution */
-.product-card .card-body > * {
+.section .product-card .card-body > * {
     flex-shrink: 0; /* Prevent elements from shrinking */
 }
 .add-to-cart-btn{
@@ -129,5 +174,18 @@
 }
 .add-to-cart-btn:active{
     transform: scale(0.90);
+}
+
+@media (max-width: 576px) {
+    .product-list-wrap {
+        padding: 0 4px 12px;
+    }
+    .section .product-card {
+        min-height: 290px;
+        max-width: 190px;
+    }
+    .section .product-card img {
+        height: 110px;
+    }
 }
 

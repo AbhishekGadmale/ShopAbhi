@@ -34,7 +34,7 @@ if (response.ok) {
 
     return (
         <div className="container mt-5 text-light">
-            <form onSubmit={handleSubmit} className="w-50 mx-auto">
+            <form onSubmit={handleSubmit} className="w-100 w-md-50 mx-auto">
                 <div className="mb-3">
                     <label htmlFor="email" className="form-label">Email address</label> 
                     <input type="email" className="form-control" value={formdata.email} onChange={(e)=>setFormdata({...formdata,email:e.target.value} )} required/>

@@ -103,7 +103,9 @@ const token= localStorage.getItem("token");
         <p>Your items will be delivered soon!</p>
         <div className="card-header bg-light">
       <h2 className="mb-0">Order Summary</h2>
-
+<h1 className="text-4xl font-bold text-red-500">
+Tailwind Working
+</h1>
       {placedOrder && placedOrder.items.map((item,idx) => (
   <div key={idx} className="order-item order-summary">
     <p><strong>{item.name}</strong></p>

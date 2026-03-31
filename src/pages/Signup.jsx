@@ -1,27 +1,42 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { useAuth } from "../context/AuthContext";
 const Signup = ()=>{
 
-    const {login}=useAuth();
     const navigate=useNavigate();
     const[formdata,setFormData]= useState({email:"",password:"",name:""});
     const handleSubmit=async(e)=>{
         e.preventDefault();
        
+        try {
+          const response = await fetch("https://shopabhi-backend.onrender.com/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: formdata.name,
+              email: formdata.email,
+              password: formdata.password,
+            }),
+          });
 
-         const response = await fetch("https://shopabhi-backend.onrender.com/api/auth/signup", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ name: formdata.name, email: formdata.email, password: formdata.password })
-});
-const data = await response.json();
-if (response.ok) {
-  alert("Signup successful! Please login.");
-  navigate("/login");
-} else {
-  alert(data.error);
-}
+          // If the backend is down / returns HTML, response.json() will throw.
+          const raw = await response.text();
+          let data = {};
+          try {
+            data = raw ? JSON.parse(raw) : {};
+          } catch {
+            data = { error: raw || "Unexpected server response" };
+          }
+
+          if (response.ok) {
+            alert("Signup successful! Please login.");
+            navigate("/login");
+          } else {
+            alert(data?.error || "Signup failed");
+          }
+        } catch (err) {
+          console.error("Signup request failed:", err);
+          alert("Signup failed: cannot reach server (CORS/network).");
+        }
     };
     
 
@@ -31,7 +46,7 @@ if (response.ok) {
     return (
         <div className="container mt-5 text-light">
             <h2>Signup Page</h2>
-            <form onSubmit={handleSubmit} className="w-50 mx-auto">
+            <form onSubmit={handleSubmit} className="w-100 w-md-50 mx-auto">
                 <div className="mb-3">
                     <label>Name</label>
                     <input type="text" className="form-control" value={formdata.name} onChange={(e)=>setFormData({...formdata,name:e.target.value})} required />

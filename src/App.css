@@ -78,8 +78,9 @@ body,html,#root{
   padding-top: 70px;
 }
 
+/* Keep product cards flexible; page-specific files (Home/ProductList) control layout. */
 .product-card {
-  max-width: 260px;   /* increase from 200px or whatever you had */
-  min-width: 200px;   /* ensure they don’t shrink too much */
-  height: 370px;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
 }
