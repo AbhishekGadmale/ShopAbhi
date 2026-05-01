@@ -65,7 +65,7 @@ function Home() {
 
       {/* Product List Section */}
       <div ref={sectionRef} className="scroll-mt-32">
-        <ProductList />
+        <ProductList hideFilters={true} />
       </div>
 
       {/* Trust Badges */}

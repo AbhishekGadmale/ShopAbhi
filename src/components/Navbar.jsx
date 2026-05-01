@@ -3,16 +3,19 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useSearch } from "../context/searchBar";
 import { useAuth } from "../context/AuthContext";
+import MiniCart from "./MiniCart";
 
 function AmazonNavbar() {
-  const { cartCount } = useCart();
+  const { cartCount, isMiniCartOpen, openMiniCart, closeMiniCart } = useCart();
   const { searchTerm, setSearchTerm } = useSearch();
   const { user, logout } = useAuth();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
 
   const closeDrawer = () => setIsDrawerOpen(false);
   const openDrawer = () => setIsDrawerOpen(true);
+  const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
 
   const handleLogout = async () => {
     await logout();
@@ -43,14 +46,17 @@ function AmazonNavbar() {
             <Link to="/" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
               Home
             </Link>
-            <Link to="/cart" className="relative bg-[#febd69] hover:bg-[#f3a847] text-[#111] font-bold px-4 py-1.5 rounded-md transition cart-icon-target">
+            <button 
+              onClick={openMiniCart}
+              className="relative bg-[#febd69] hover:bg-[#f3a847] text-[#111] font-bold px-4 py-1.5 rounded-md transition cart-icon-target"
+            >
               🛒 Cart
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#131921]">
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
             {user && user.email ? (
               <button className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition" onClick={handleLogout}>
                 Logout ({user.email.split('@')[0]})
@@ -69,6 +75,13 @@ function AmazonNavbar() {
 
           {/* Mobile Controls */}
           <div className="flex lg:hidden items-center gap-3">
+            <button
+              className="text-white text-xl p-2"
+              onClick={toggleSearch}
+              aria-label="Toggle search"
+            >
+              🔍
+            </button>
             <Link to="/cart" className="relative bg-[#febd69] text-[#111] p-2 rounded-md cart-icon-target">
               🛒
               {cartCount > 0 && (
@@ -88,8 +101,8 @@ function AmazonNavbar() {
         </div>
 
         {/* Search Bar */}
-        <div className="w-full">
-          <form onSubmit={handleSearch} className="w-full max-w-2xl mx-auto flex">
+        <div className={`w-full overflow-hidden transition-all duration-300 ${isSearchOpen ? "max-h-20 opacity-100 py-2" : "max-h-0 lg:max-h-20 opacity-0 lg:opacity-100 lg:py-0"}`}>
+          <form onSubmit={handleSearch} className="w-full max-w-2xl mx-auto flex px-2 lg:px-0">
             <input
               type="text"
               className="w-full rounded-full px-4 py-1.5 bg-white text-gray-900 border-2 border-[#febd69] focus:outline-none focus:ring-2 focus:ring-[#ffa41c] shadow-sm"
@@ -128,6 +141,8 @@ function AmazonNavbar() {
           )}
         </div>
       </aside>
+
+      <MiniCart isOpen={isMiniCartOpen} onClose={closeMiniCart} />
     </>
   );
 }

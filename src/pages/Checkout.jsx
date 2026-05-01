@@ -3,12 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { fetchWithAuth } from "../api/client";
 
+const STEPS = ["Address", "Delivery", "Payment", "Review"];
+
 function CheckOut() {
+  const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
+    city: "",
+    pincode: "",
+    deliveryOption: "standard",
     paymentMethod: "cod",
   });
 
@@ -22,6 +28,9 @@ function CheckOut() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
+  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -32,14 +41,7 @@ function CheckOut() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.phone || !formData.address) {
-      alert("Please fill all required fields!");
-      return;
-    }
-
+  const handleSubmit = async () => {
     const orderData = {
       items: cartItems.map((item) => ({
         name: item.name,
@@ -52,8 +54,9 @@ function CheckOut() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        address: formData.address,
+        address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
         paymentMethod: formData.paymentMethod,
+        deliveryOption: formData.deliveryOption,
       },
     };
 
@@ -138,141 +141,193 @@ function CheckOut() {
   if (orderPlaced && placedOrder) {
     return (
       <div className="max-w-2xl mx-auto bg-[#1a1a1a] p-8 md:p-12 rounded-3xl border border-white/10 text-center shadow-2xl">
-        <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
-          ✓
-        </div>
-        <h2 className="text-3xl font-bold text-white mb-2">Order Placed Successfully!</h2>
-        <p className="text-gray-400 mb-10">Thank you for shopping with <strong className="text-[#febd69]">ShopAbhi</strong>. Your items will be delivered soon!</p>
-        
-        <div className="bg-black/20 rounded-2xl p-6 text-left mb-8 border border-white/5">
-          <h3 className="text-lg font-bold text-white mb-6 border-b border-white/10 pb-4 uppercase tracking-widest text-xs">Order Summary</h3>
-          <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-            {placedOrder.items.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-white rounded-lg p-2 flex-shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
-                </div>
-                <div className="flex-grow">
-                  <p className="text-white font-medium text-sm line-clamp-1">{item.name}</p>
-                  <p className="text-gray-500 text-xs">{item.quantity} x ₹{item.price}</p>
-                </div>
-                <p className="text-white font-bold">₹{item.price * item.quantity}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 pt-6 border-t border-white/10 flex justify-between items-center">
-            <span className="text-gray-400 font-bold uppercase tracking-widest text-xs">Total Amount</span>
-            <span className="text-2xl font-black text-[#febd69]">₹{placedOrder.total}</span>
-          </div>
-        </div>
-        
-        <button 
-          className="w-full py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-all border border-white/10"
-          onClick={() => navigate("/")}
-        >
-          Return to Home
-        </button>
+        <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✓</div>
+        <h2 className="text-3xl font-bold text-white mb-2">Order Confirmed!</h2>
+        <p className="text-gray-400 mb-10">Thank you for your purchase. Your order ID is <span className="text-[#febd69]">#{placedOrder._id?.slice(-8).toUpperCase()}</span></p>
+        <button className="w-full py-4 bg-[#ffa41c] text-[#111] font-bold rounded-xl transition-all" onClick={() => navigate("/")}>Continue Shopping</button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 pb-12">
-      <div className="bg-[#1a1a1a] p-8 rounded-3xl border border-white/10 shadow-xl">
-        <h2 className="text-2xl font-bold text-white mb-8">Shipping Details</h2>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Full Name *</label>
-            <input
-              type="text"
-              name="name"
-              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Phone Number *</label>
-            <input
-              type="text"
-              name="phone"
-              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Delivery Address *</label>
-            <textarea
-              name="address"
-              rows="3"
-              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition resize-none"
-              value={formData.address}
-              onChange={handleChange}
-              required
-            ></textarea>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Payment Method</label>
-            <select
-              name="paymentMethod"
-              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition appearance-none"
-              value={formData.paymentMethod}
-              onChange={handleChange}
-            >
-              <option value="cod" className="bg-[#1a1a1a]">Cash on Delivery (COD)</option>
-              <option value="card" className="bg-[#1a1a1a]">Credit/Debit Card (Razorpay)</option>
-              <option value="upi" className="bg-[#1a1a1a]">UPI / Net Banking (Razorpay)</option>
-            </select>
-          </div>
-
-          <button type="submit" className="w-full py-4 bg-[#ffa41c] hover:bg-[#ffb347] text-[#111] font-bold rounded-xl transition-all active:scale-95 shadow-lg shadow-[#ffa41c]/20 mt-4">
-            Confirm & Pay
-          </button>
-        </form>
-      </div>
-
-      <div className="bg-[#1a1a1a] p-8 rounded-3xl border border-white/10 shadow-xl self-start lg:sticky lg:top-28">
-        <h2 className="text-xl font-bold text-white mb-6">Your Cart</h2>
-        <div className="space-y-4 mb-8">
-          {cartItems.map((item, idx) => (
-            <div key={idx} className="flex justify-between items-center text-sm">
-              <span className="text-gray-400 flex-grow pr-4 truncate">{item.name} <span className="text-gray-600">x{item.quantity}</span></span>
-              <span className="text-white font-medium">₹{item.price * item.quantity}</span>
+    <div className="max-w-6xl mx-auto pb-20">
+      {/* Stepper */}
+      <div className="mb-12 max-w-3xl mx-auto">
+        <div className="flex items-center justify-between relative">
+          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/10 -translate-y-1/2 z-0" />
+          <div 
+            className="absolute top-1/2 left-0 h-0.5 bg-[#febd69] -translate-y-1/2 z-0 transition-all duration-500" 
+            style={{ width: `${(currentStep / (STEPS.length - 1)) * 100}%` }}
+          />
+          {STEPS.map((step, idx) => (
+            <div key={idx} className="relative z-10 flex flex-col items-center gap-2">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${idx <= currentStep ? "bg-[#febd69] text-[#111] scale-110 shadow-lg shadow-[#febd69]/20" : "bg-[#232f3e] text-gray-500"}`}>
+                {idx < currentStep ? "✓" : idx + 1}
+              </div>
+              <span className={`text-[10px] uppercase tracking-widest font-bold ${idx <= currentStep ? "text-white" : "text-gray-600"}`}>{step}</span>
             </div>
           ))}
         </div>
-        <div className="border-t border-white/10 pt-6 flex justify-between items-end">
-          <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Payable</p>
-            <p className="text-3xl font-black text-[#febd69]">₹{cartTotal}</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+        {/* Step Content */}
+        <div className="lg:col-span-2 space-y-8 bg-[#1a1a1a] p-8 rounded-3xl border border-white/10 shadow-xl">
+          {currentStep === 0 && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-bold text-white mb-8">Shipping Address</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Full Name *</label>
+                  <input type="text" name="name" className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition" value={formData.name} onChange={handleChange} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Phone Number *</label>
+                  <input type="text" name="phone" className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition" value={formData.phone} onChange={handleChange} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email (Optional)</label>
+                  <input type="email" name="email" className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition" value={formData.email} onChange={handleChange} />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Street Address *</label>
+                  <textarea name="address" rows="2" className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition resize-none" value={formData.address} onChange={handleChange} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">City *</label>
+                  <input type="text" name="city" className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition" value={formData.city} onChange={handleChange} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Pincode *</label>
+                  <input type="text" name="pincode" className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition" value={formData.pincode} onChange={handleChange} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentStep === 1 && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-bold text-white mb-8">Delivery Method</h2>
+              <div className="space-y-4">
+                {[
+                  { id: "standard", title: "Standard Delivery", desc: "Delivered in 3-5 business days", price: "FREE" },
+                  { id: "express", title: "Express Delivery", desc: "Delivered in 1-2 business days", price: "₹99" }
+                ].map((opt) => (
+                  <label key={opt.id} className={`flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.deliveryOption === opt.id ? "border-[#febd69] bg-[#febd69]/5 shadow-lg shadow-[#febd69]/5" : "border-white/5 hover:border-white/20 bg-white/5"}`}>
+                    <div className="flex items-center gap-4">
+                      <input type="radio" name="deliveryOption" value={opt.id} checked={formData.deliveryOption === opt.id} onChange={handleChange} className="w-5 h-5 accent-[#febd69]" />
+                      <div>
+                        <p className="text-white font-bold">{opt.title}</p>
+                        <p className="text-gray-500 text-xs">{opt.desc}</p>
+                      </div>
+                    </div>
+                    <span className="text-[#febd69] font-black">{opt.price}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {currentStep === 2 && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-bold text-white mb-8">Payment Details</h2>
+              <div className="space-y-4">
+                {[
+                  { id: "cod", title: "Cash on Delivery", desc: "Pay when you receive the product", icon: "💵" },
+                  { id: "card", title: "Card / UPI / NetBanking", desc: "Secure payment via Razorpay", icon: "💳" }
+                ].map((opt) => (
+                  <label key={opt.id} className={`flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === opt.id ? "border-[#febd69] bg-[#febd69]/5 shadow-lg shadow-[#febd69]/5" : "border-white/5 hover:border-white/20 bg-white/5"}`}>
+                    <div className="flex items-center gap-4">
+                      <input type="radio" name="paymentMethod" value={opt.id} checked={formData.paymentMethod === opt.id} onChange={handleChange} className="w-5 h-5 accent-[#febd69]" />
+                      <div className="text-2xl">{opt.icon}</div>
+                      <div>
+                        <p className="text-white font-bold">{opt.title}</p>
+                        <p className="text-gray-500 text-xs">{opt.desc}</p>
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-2xl font-bold text-white mb-8">Review Order</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <h4 className="text-gray-500 uppercase text-[10px] font-bold tracking-widest">Ship to</h4>
+                  <p className="text-white font-medium">{formData.name}</p>
+                  <p className="text-gray-400 text-sm">{formData.address}, {formData.city} - {formData.pincode}</p>
+                  <p className="text-gray-400 text-sm">Phone: {formData.phone}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-gray-500 uppercase text-[10px] font-bold tracking-widest">Payment & Delivery</h4>
+                  <p className="text-white font-medium">{formData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
+                  <p className="text-gray-400 text-sm uppercase">{formData.deliveryOption} Delivery</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Nav Buttons */}
+          <div className="flex justify-between pt-8 border-t border-white/10 mt-8">
+            <button 
+              className={`px-8 py-3 rounded-xl font-bold transition-all ${currentStep === 0 ? "opacity-0 pointer-events-none" : "text-white hover:bg-white/5 border border-white/10"}`}
+              onClick={prevStep}
+            >
+              Back
+            </button>
+            {currentStep < STEPS.length - 1 ? (
+              <button 
+                className="px-10 py-3 bg-[#febd69] text-[#111] font-bold rounded-xl shadow-lg shadow-[#febd69]/10 active:scale-95 transition-all"
+                onClick={nextStep}
+                disabled={currentStep === 0 && (!formData.name || !formData.phone || !formData.address)}
+              >
+                Next Step
+              </button>
+            ) : (
+              <button 
+                className="px-10 py-3 bg-[#ffa41c] text-[#111] font-bold rounded-xl shadow-lg shadow-[#ffa41c]/20 active:scale-95 transition-all"
+                onClick={handleSubmit}
+              >
+                Place Order (₹{cartTotal})
+              </button>
+            )}
           </div>
-          <button onClick={() => navigate("/cart")} className="text-xs font-bold text-white/40 hover:text-white transition uppercase tracking-widest border-b border-transparent hover:border-white/20 pb-1">
-            Edit Cart
-          </button>
         </div>
-        
-        <div className="mt-8 p-4 bg-blue-500/5 rounded-xl border border-blue-500/10 flex gap-4">
-          <span className="text-2xl">🚚</span>
-          <p className="text-xs text-blue-200/60 leading-relaxed">
-            Standard free delivery applies to this order. Expected delivery within 3-5 business days.
-          </p>
+
+        {/* Sticky Summary */}
+        <div className="bg-[#1a1a1a] p-8 rounded-3xl border border-white/10 shadow-xl lg:sticky lg:top-28">
+          <h3 className="text-lg font-bold text-white mb-6 border-b border-white/10 pb-4">Order Summary</h3>
+          <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            {cartItems.map((item, idx) => (
+              <div key={idx} className="flex gap-4">
+                <div className="w-12 h-12 bg-white rounded-lg p-1 flex-shrink-0">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                </div>
+                <div className="flex-grow min-w-0">
+                  <p className="text-white text-xs font-medium truncate">{item.name}</p>
+                  <p className="text-gray-500 text-[10px]">{item.quantity} x ₹{item.price}</p>
+                </div>
+                <p className="text-white font-bold text-xs">₹{item.price * item.quantity}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 space-y-3 pt-6 border-t border-white/10">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Subtotal</span>
+              <span className="text-white">₹{cartTotal}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Delivery</span>
+              <span className="text-green-500">{formData.deliveryOption === 'express' ? '+ ₹99' : 'FREE'}</span>
+            </div>
+            <div className="flex justify-between items-end pt-3">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total</span>
+              <span className="text-3xl font-black text-[#febd69]">₹{cartTotal + (formData.deliveryOption === 'express' ? 99 : 0)}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

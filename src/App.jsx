@@ -8,12 +8,13 @@ import Home from "./pages/Home";
 import ProductList from "./components/ProductList";
 import CartPage from "./components/CartPage";
 import CheckOut from "./pages/Checkout";
-import { SearchProvider } from "./context/searchBar.js";
+import { SearchProvider } from "./context/searchBar";
 import SearchResults from "./pages/SearchResults";
-import ProductDetails from "./pages/ProductDetails.js";
-import ErrorBoundary from "./components/ErrorBoundary.js";
+import ProductDetails from "./pages/ProductDetails";
+import ErrorBoundary from "./components/ErrorBoundary";
 import OrderHistory from "./pages/OrderHistory.jsx";
 import { AuthProvider } from "./context/AuthContext";
+import { ToastProvider } from "./context/ToastContext";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -21,10 +22,11 @@ import Signup from "./pages/Signup.jsx";
 function App() {
   return (
     <ErrorBoundary>
-      <SearchProvider>
-        <CartProvider>
-          <AuthProvider>
-            <BrowserRouter>
+      <ToastProvider>
+        <SearchProvider>
+          <CartProvider>
+            <AuthProvider>
+              <BrowserRouter>
               <div className="min-h-screen bg-[#0f1111] flex flex-col">
                 <AmazonNavbar />
                 <main className="flex-grow pt-32 lg:pt-24 px-4 max-w-7xl mx-auto w-full">
@@ -45,6 +47,7 @@ function App() {
           </AuthProvider>
         </CartProvider>
       </SearchProvider>
+      </ToastProvider>
     </ErrorBoundary>
   );
 }

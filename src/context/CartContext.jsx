@@ -3,6 +3,10 @@ import React, { createContext,useEffect, useState, useMemo, useContext } from "r
 export const CartContext=createContext();
 
 export function CartProvider({ children }) {
+const [isMiniCartOpen, setIsMiniCartOpen] = useState(false);
+const openMiniCart = () => setIsMiniCartOpen(true);
+const closeMiniCart = () => setIsMiniCartOpen(false);
+
 const clearCart = () => setCartItems([]);
 const [orders,setOrders]=useState(()=>{
   const savedOrders=localStorage.getItem("orders");
@@ -94,6 +98,9 @@ useEffect(() => {
         clearCart,
         orders,
         placeOrder,
+        isMiniCartOpen,
+        openMiniCart,
+        closeMiniCart,
       }}
     >
       {children}
