@@ -1,37 +1,49 @@
 import React, {createContext,useEffect,useState} from "react";
 import { useContext } from "react";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+
 const AuthContext=createContext();
+
 export function AuthProvider({children}) {
  const [user,setUser]=useState(null);
  const [loading,setLoading]=useState(true);
- const login=(userData,accessToken)=>{
-   localStorage.setItem("token",accessToken);
+
+ const login=(userData)=>{
     setUser(userData);
  };
+
  const logout = async () => {
   try {
-    await fetch("https://shopabhi-backend.onrender.com/api/auth/logout", {
+    await fetch(`${API_BASE}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
 
-    localStorage.removeItem("token");
     setUser(null);
   } catch (err) {
     console.error("Logout error:", err.message);
   }
 };
-
  useEffect(() => {
-  const token = localStorage.getItem("token");
+  const verifySession = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/me`, {
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (err) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (token) {
-    setUser({ loggedIn: true });
-  } else {
-    setUser(null);
-  }
-
-  setLoading(false);
+  verifySession();
 }, []);
 
  return (

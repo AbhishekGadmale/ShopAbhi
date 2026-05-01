@@ -1,67 +1,102 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
-const Signup = ()=>{
+import { useNavigate, Link } from "react-router-dom";
 
-    const navigate=useNavigate();
-    const[formdata,setFormData]= useState({email:"",password:"",name:""});
-    const handleSubmit=async(e)=>{
-        e.preventDefault();
-       
-        try {
-          const response = await fetch("https://shopabhi-backend.onrender.com/api/auth/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: formdata.name,
-              email: formdata.email,
-              password: formdata.password,
-            }),
-          });
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-          // If the backend is down / returns HTML, response.json() will throw.
-          const raw = await response.text();
-          let data = {};
-          try {
-            data = raw ? JSON.parse(raw) : {};
-          } catch {
-            data = { error: raw || "Unexpected server response" };
-          }
+const Signup = () => {
+  const navigate = useNavigate();
+  const [formdata, setFormData] = useState({ email: "", password: "", name: "" });
+  const [isLoading, setIsLoading] = useState(false);
 
-          if (response.ok) {
-            alert("Signup successful! Please login.");
-            navigate("/login");
-          } else {
-            alert(data?.error || "Signup failed");
-          }
-        } catch (err) {
-          console.error("Signup request failed:", err);
-          alert("Signup failed: cannot reach server (CORS/network).");
-        }
-    };
-    
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formdata),
+      });
 
+      const data = await response.json();
 
-    
-    return (
-        <div className="container mt-5 text-light">
-            <h2>Signup Page</h2>
-            <form onSubmit={handleSubmit} className="w-100 w-md-50 mx-auto">
-                <div className="mb-3">
-                    <label>Name</label>
-                    <input type="text" className="form-control" value={formdata.name} onChange={(e)=>setFormData({...formdata,name:e.target.value})} required />
-                </div>
-                <div className="mb-3">
-                    <label>Email</label>
-                    <input type="email" className="form-control" value={formdata.email} onChange={(e)=>setFormData({...formdata,email:e.target.value})} required />
-                </div>
-                <div className="mb-3">
-                    <label>Password</label>
-                    <input type="password" className="form-control" value={formdata.password} onChange={(e)=>setFormData({...formdata,password:e.target.value})} required />
-                </div>
-                <button type="submit" className="btn btn-warning w-100">Signup</button>
-            </form>
+      if (response.ok) {
+        alert("Signup successful! Please login.");
+        navigate("/login");
+      } else {
+        alert(data?.error || data?.message || "Signup failed");
+      }
+    } catch (err) {
+      alert("Signup failed: cannot reach server.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-md mx-auto mt-12 bg-[#1a1a1a] p-8 rounded-3xl border border-white/10 shadow-2xl">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-black text-white mb-2">Join ShopAbhi</h2>
+        <p className="text-gray-500">Create your account to start shopping</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Full Name</label>
+          <input
+            type="text"
+            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition"
+            value={formdata.name}
+            onChange={(e) => setFormData({ ...formdata, name: e.target.value })}
+            required
+            placeholder="John Doe"
+          />
         </div>
-    )
-}
+
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email address</label>
+          <input
+            type="email"
+            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition"
+            value={formdata.email}
+            onChange={(e) => setFormData({ ...formdata, email: e.target.value })}
+            required
+            placeholder="john@example.com"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Password</label>
+          <input
+            type="password"
+            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#febd69] transition"
+            value={formdata.password}
+            onChange={(e) => setFormData({ ...formdata, password: e.target.value })}
+            required
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full py-4 bg-[#ffa41c] hover:bg-[#ffb347] text-[#111] font-bold rounded-xl transition-all active:scale-95 shadow-lg shadow-[#ffa41c]/20 disabled:opacity-50"
+        >
+          {isLoading ? "Creating Account..." : "Sign Up"}
+        </button>
+      </form>
+
+      <div className="mt-8 pt-6 border-t border-white/5 text-center">
+        <p className="text-gray-500 text-sm">
+          Already have an account?{" "}
+          <Link to="/login" className="text-[#febd69] font-bold hover:underline">
+            Log In
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
 export default Signup;
