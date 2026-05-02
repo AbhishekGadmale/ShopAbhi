@@ -1,6 +1,6 @@
 import React, {createContext,useEffect,useState} from "react";
 import { useContext } from "react";
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://shopabhi-backend.onrender.com";
 
 const AuthContext=createContext();
 
