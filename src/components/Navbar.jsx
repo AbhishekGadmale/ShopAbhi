@@ -40,6 +40,11 @@ function AmazonNavbar() {
 
           {/* Desktop Links */}
           <div className="hidden lg:flex items-center gap-4">
+            {user && user.role === "admin" && (
+              <Link to="/admin" className="text-[#febd69] border border-[#febd69]/30 hover:bg-[#febd69]/10 px-4 py-1.5 rounded-md transition font-bold">
+                Admin Panel
+              </Link>
+            )}
             <Link to="/orders" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
               My Orders
             </Link>
@@ -126,6 +131,9 @@ function AmazonNavbar() {
           </button>
         </div>
         <div className="p-4 flex flex-col gap-3">
+          {user && user.role === "admin" && (
+            <Link to="/admin" onClick={closeDrawer} className="text-[#febd69] hover:text-[#f3a847] py-2 border-b border-white/5 transition font-bold">Admin Panel</Link>
+          )}
           <Link to="/" onClick={closeDrawer} className="text-white hover:text-[#febd69] py-2 border-b border-white/5 transition">Home</Link>
           <Link to="/cart" onClick={closeDrawer} className="text-white hover:text-[#febd69] py-2 border-b border-white/5 transition">Cart</Link>
           <Link to="/orders" onClick={closeDrawer} className="text-white hover:text-[#febd69] py-2 border-b border-white/5 transition">My Orders</Link>

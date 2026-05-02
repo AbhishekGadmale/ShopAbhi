@@ -18,6 +18,8 @@ import { ToastProvider } from "./context/ToastContext";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Signup from "./pages/Signup.jsx";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminRoute from "./components/AdminRoute";
 
 function App() {
   return (
@@ -40,6 +42,7 @@ function App() {
                     <Route path="/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
+                    <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                   </Routes>
                 </main>
               </div>
