@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { fetchWithAuth } from "../api/client";
 
@@ -25,24 +25,29 @@ function CheckOut() {
   const { selectedItems, fetchCart } = useCart();
   const [placedOrder, setPlacedOrder] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const checkoutItems = useMemo(() => {
+    return location.state?.buyNowItem ? [location.state.buyNowItem] : selectedItems;
+  }, [location.state, selectedItems]);
 
   // Redirect if no items are selected
   React.useEffect(() => {
-    if (selectedItems.length === 0 && !orderPlaced) {
+    if (checkoutItems.length === 0 && !orderPlaced) {
       navigate("/cart");
     }
-  }, [selectedItems, navigate, orderPlaced]);
+  }, [checkoutItems, navigate, orderPlaced]);
 
   // Fetch verified total from backend
   React.useEffect(() => {
-    if (selectedItems.length > 0 && currentStep === 3) {
+    if (checkoutItems.length > 0 && currentStep === 3) {
       const getVerifiedTotal = async () => {
         setIsLoadingTotal(true);
         try {
           const res = await fetchWithAuth("/api/orders/preview", {
             method: "POST",
             body: JSON.stringify({
-              items: selectedItems.map(item => ({ id: item.id, quantity: item.quantity }))
+              items: checkoutItems.map(item => ({ id: item.id, quantity: item.quantity }))
             })
           });
           const data = await res.json();
@@ -59,7 +64,7 @@ function CheckOut() {
       };
       getVerifiedTotal();
     }
-  }, [selectedItems, currentStep]);
+  }, [checkoutItems, currentStep]);
 
   const finalTotal = verifiedTotal + (formData.deliveryOption === 'express' ? 99 : 0);
 
@@ -82,7 +87,7 @@ function CheckOut() {
   };
 
   const handleSubmit = async () => {
-    const minimalItems = selectedItems.map((item) => ({
+    const minimalItems = checkoutItems.map((item) => ({
       id: item.id,
       quantity: item.quantity,
     }));
@@ -110,7 +115,9 @@ function CheckOut() {
         if (res.status === 201 || res.status === 200) {
           setPlacedOrder(data.order);
           setOrderPlaced(true);
-          await fetchCart(); 
+          if (!location.state?.buyNowItem) {
+            await fetchCart(); 
+          }
         } else {
           alert(data.error || "Failed to place order.");
         }
@@ -161,7 +168,9 @@ function CheckOut() {
             if (verifyRes.ok) {
               setPlacedOrder(verifyData.order);
               setOrderPlaced(true);
-              await fetchCart(); 
+              if (!location.state?.buyNowItem) {
+                await fetchCart(); 
+              }
             } else {
               alert(verifyData.error || "Payment verification failed.");
             }
@@ -346,7 +355,7 @@ function CheckOut() {
         <div className="bg-[#1a1a1a] p-8 rounded-3xl border border-white/10 shadow-xl lg:sticky lg:top-28">
           <h3 className="text-lg font-bold text-white mb-6 border-b border-white/10 pb-4">Order Summary</h3>
           <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-            {selectedItems.map((item, idx) => (
+            {checkoutItems.map((item, idx) => (
               <div key={idx} className="flex gap-4">
                 <div className="w-12 h-12 bg-white rounded-lg p-1 flex-shrink-0">
                   <img src={item.image} alt={item.name} className="w-full h-full object-contain" />

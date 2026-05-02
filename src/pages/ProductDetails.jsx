@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { fetchWithAuth } from "../api/client";
 import { ProductDetailsSkeleton } from "../components/Skeleton";
 import { useToast } from "../context/ToastContext";
@@ -9,6 +10,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 function ProductDetails() {
   const { id } = useParams();
   const { addToCart, openMiniCart } = useCart();
+  const { user } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
@@ -16,6 +18,11 @@ function ProductDetails() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Review states
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   
   // High-Fidelity States
   const [selectedColor, setSelectedColor] = useState("Midnight Black");
@@ -35,6 +42,39 @@ function ProductDetails() {
 
   const handleMouseLeave = () => {
     setZoomStyle({ display: "none" });
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      addToast("Please login to leave a review", "error");
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    try {
+      const res = await fetchWithAuth(`/api/products/${id}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({ rating: reviewRating, comment: reviewComment }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        addToast("Review submitted successfully!");
+        setReviewComment("");
+        setReviewRating(5);
+        // Refresh product data
+        const prodRes = await fetchWithAuth(`/api/products/${id}`);
+        const prodData = await prodRes.json();
+        if (prodRes.ok) setProduct(prodData.product);
+      } else {
+        addToast(data.error || "Failed to submit review", "error");
+      }
+    } catch (err) {
+      addToast("Network error", "error");
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
   useEffect(() => {
@@ -194,7 +234,10 @@ function ProductDetails() {
             >
               Add to Cart
             </button>
-            <button className="flex-grow px-10 py-4 bg-[#fb923c] hover:bg-[#f97316] text-[#111] font-bold rounded-xl text-lg transition-all active:scale-95">
+            <button 
+              className="flex-grow px-10 py-4 bg-[#fb923c] hover:bg-[#f97316] text-[#111] font-bold rounded-xl text-lg transition-all active:scale-95"
+              onClick={() => navigate("/checkout", { state: { buyNowItem: { ...product, id: product._id || product.id, quantity: 1 } } })}
+            >
               Buy Now
             </button>
           </div>
@@ -224,59 +267,109 @@ function ProductDetails() {
         <div>
           <h3 className="text-2xl font-bold text-white mb-6">Customer Reviews</h3>
           <div className="flex items-center gap-4 mb-8">
-            <span className="text-5xl font-extrabold text-[#febd69]">{product.rating}</span>
+            <span className="text-5xl font-extrabold text-[#febd69]">{Number(product.rating || 0).toFixed(1)}</span>
             <div>
-              <div className="text-[#febd69] text-xl">{"★".repeat(5)}</div>
-              <p className="text-gray-500 text-sm">Based on {product.reviews || 124} ratings</p>
+              <div className="text-[#febd69] text-xl">{"★".repeat(Math.floor(product.rating || 0))}{"☆".repeat(5 - Math.floor(product.rating || 0))}</div>
+              <p className="text-gray-500 text-sm">Based on {product.numReviews || 0} ratings</p>
             </div>
           </div>
-          <div className="space-y-3">
-            {[5, 4, 3, 2, 1].map((star) => (
-              <div key={star} className="flex items-center gap-3">
-                <span className="text-xs text-gray-400 w-12">{star} star</span>
-                <div className="flex-grow h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#febd69]" style={{ width: star === 5 ? "70%" : star === 4 ? "20%" : "5%" }} />
+          
+          {/* Review Form */}
+          {user ? (
+            <div className="bg-[#1a1a1a] p-6 rounded-2xl border border-white/5 mb-8">
+              <h4 className="text-white font-bold mb-4">Write a Review</h4>
+              <form onSubmit={handleReviewSubmit} className="space-y-4">
+                <div>
+                  <label className="text-xs text-gray-400 uppercase font-bold mb-2 block">Rating</label>
+                  <select 
+                    value={reviewRating} 
+                    onChange={(e) => setReviewRating(e.target.value)}
+                    className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#febd69] outline-none"
+                  >
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="3">3 - Good</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="1">1 - Poor</option>
+                  </select>
                 </div>
-                <span className="text-xs text-gray-400 w-8">{star === 5 ? "70%" : star === 4 ? "20%" : "5%"}</span>
-              </div>
-            ))}
+                <div>
+                  <label className="text-xs text-gray-400 uppercase font-bold mb-2 block">Comment</label>
+                  <textarea 
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    required
+                    rows="3"
+                    className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#febd69] outline-none resize-none"
+                    placeholder="What did you think about this product?"
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  disabled={isSubmittingReview}
+                  className="w-full py-3 bg-[#febd69] text-[#111] font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isSubmittingReview ? "Submitting..." : "Post Review"}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="bg-white/5 p-6 rounded-2xl border border-dashed border-white/10 mb-8 text-center">
+              <p className="text-gray-400 text-sm mb-4">You must be logged in to post a review.</p>
+              <button onClick={() => navigate("/login")} className="text-[#febd69] font-bold hover:underline">Login Now</button>
+            </div>
+          )}
+
+          <div className="space-y-3 hidden md:block">
+            {[5, 4, 3, 2, 1].map((star) => {
+              const count = product.reviews?.filter(r => Math.floor(r.rating) === star).length || 0;
+              const percent = product.numReviews > 0 ? (count / product.numReviews) * 100 : 0;
+              return (
+                <div key={star} className="flex items-center gap-3">
+                  <span className="text-xs text-gray-400 w-12">{star} star</span>
+                  <div className="flex-grow h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-[#febd69]" style={{ width: `${percent}%` }} />
+                  </div>
+                  <span className="text-xs text-gray-400 w-8">{Math.round(percent)}%</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
         <div className="lg:col-span-2 space-y-8">
           <div className="flex justify-between items-center mb-6">
-            <h4 className="text-white font-bold">Top Reviews from India</h4>
+            <h4 className="text-white font-bold">Customer Reviews ({product.numReviews || 0})</h4>
             <select className="bg-transparent text-[#febd69] text-sm font-bold border-none focus:ring-0 cursor-pointer">
-              <option value="helpful">Most Helpful</option>
               <option value="recent">Most Recent</option>
             </select>
           </div>
-          <div className="bg-[#1a1a1a] p-6 rounded-2xl border border-white/5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-[#febd69]/20 flex items-center justify-center text-[#febd69] font-bold">JD</div>
-              <div>
-                <p className="text-white font-bold text-sm">John Doe</p>
-                <div className="text-[#febd69] text-xs">{"★".repeat(5)}</div>
+          
+          {product.reviews && product.reviews.length > 0 ? (
+            product.reviews.map((rev) => (
+              <div key={rev._id} className="bg-[#1a1a1a] p-6 rounded-2xl border border-white/5 animate-in fade-in slide-in-from-bottom-2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-[#febd69]/20 flex items-center justify-center text-[#febd69] font-bold">
+                    {rev.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-sm">{rev.name}</p>
+                    <div className="text-[#febd69] text-xs">
+                      {"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}
+                    </div>
+                  </div>
+                  <span className="ml-auto text-gray-500 text-[10px]">
+                    {new Date(rev.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-gray-400 text-sm leading-relaxed">{rev.comment}</p>
               </div>
+            ))
+          ) : (
+            <div className="py-20 text-center border-2 border-dashed border-white/5 rounded-3xl">
+              <p className="text-gray-500 italic">No reviews yet. Be the first to share your thoughts!</p>
             </div>
-            <p className="text-white font-medium mb-2">Excellent Quality!</p>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              I've been using this for a week and it exceeded my expectations. The build quality is solid and the performance is top-notch. Highly recommended!
-            </p>
-          </div>
-          <div className="bg-[#1a1a1a] p-6 rounded-2xl border border-white/5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-[#febd69]/20 flex items-center justify-center text-[#febd69] font-bold">AS</div>
-              <div>
-                <p className="text-white font-bold text-sm">Alice Smith</p>
-                <div className="text-[#febd69] text-xs">{"★".repeat(4)}</div>
-              </div>
-            </div>
-            <p className="text-white font-medium mb-2">Great value for money</p>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Good product for the price. The delivery was fast and the packaging was secure.
-            </p>
-          </div>
+          )}
         </div>
       </div>
 
