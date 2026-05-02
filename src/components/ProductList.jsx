@@ -354,6 +354,7 @@ function ProductList({ hideFilters = false }) {
         )}
       </div>
     </div>
+    </div>
   );
 }
 

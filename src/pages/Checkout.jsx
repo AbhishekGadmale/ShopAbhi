@@ -7,6 +7,9 @@ const STEPS = ["Address", "Delivery", "Payment", "Review"];
 
 function CheckOut() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [verifiedTotal, setVerifiedTotal] = useState(0);
+  const [isLoadingTotal, setIsLoadingTotal] = useState(false);
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,9 +22,46 @@ function CheckOut() {
   });
 
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { selectedItems, fetchCart } = useCart();
   const [placedOrder, setPlacedOrder] = useState(null);
   const navigate = useNavigate();
+
+  // Redirect if no items are selected
+  React.useEffect(() => {
+    if (selectedItems.length === 0 && !orderPlaced) {
+      navigate("/cart");
+    }
+  }, [selectedItems, navigate, orderPlaced]);
+
+  // Fetch verified total from backend
+  React.useEffect(() => {
+    if (selectedItems.length > 0 && currentStep === 3) {
+      const getVerifiedTotal = async () => {
+        setIsLoadingTotal(true);
+        try {
+          const res = await fetchWithAuth("/api/orders/preview", {
+            method: "POST",
+            body: JSON.stringify({
+              items: selectedItems.map(item => ({ id: item.id, quantity: item.quantity }))
+            })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setVerifiedTotal(data.total);
+          } else {
+            alert(data.error || "Failed to verify total with server.");
+          }
+        } catch (err) {
+          console.error("Error verifying total", err);
+        } finally {
+          setIsLoadingTotal(false);
+        }
+      };
+      getVerifiedTotal();
+    }
+  }, [selectedItems, currentStep]);
+
+  const finalTotal = verifiedTotal + (formData.deliveryOption === 'express' ? 99 : 0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,35 +82,35 @@ function CheckOut() {
   };
 
   const handleSubmit = async () => {
-    const orderData = {
-      items: cartItems.map((item) => ({
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image,
-      })),
-      total: cartTotal,
-      details: {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
-        paymentMethod: formData.paymentMethod,
-        deliveryOption: formData.deliveryOption,
-      },
+    const minimalItems = selectedItems.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+    }));
+
+    const orderDetails = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
+      paymentMethod: formData.paymentMethod,
+      deliveryOption: formData.deliveryOption,
     };
 
     if (formData.paymentMethod === "cod") {
       try {
         const res = await fetchWithAuth("/api/orders", {
           method: "POST",
-          body: JSON.stringify(orderData),
+          body: JSON.stringify({ 
+            items: minimalItems, 
+            details: orderDetails,
+            idempotencyKey 
+          }),
         });
         const data = await res.json();
-        if (res.status === 201) {
+        if (res.status === 201 || res.status === 200) {
           setPlacedOrder(data.order);
           setOrderPlaced(true);
-          clearCart();
+          await fetchCart(); 
         } else {
           alert(data.error || "Failed to place order.");
         }
@@ -87,12 +127,16 @@ function CheckOut() {
       try {
         const orderRes = await fetchWithAuth("/api/orders/razorpay", {
           method: "POST",
-          body: JSON.stringify({ amount: cartTotal }),
+          body: JSON.stringify({ 
+            items: minimalItems,
+            details: orderDetails,
+            idempotencyKey
+          }),
         });
         const orderDataFromBackend = await orderRes.json();
 
         if (!orderRes.ok) {
-          alert("Error creating payment order.");
+          alert(orderDataFromBackend.error || "Error creating payment order.");
           return;
         }
 
@@ -110,14 +154,14 @@ function CheckOut() {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                orderData: orderData,
+                localOrderId: orderDataFromBackend.localOrderId
               }),
             });
             const verifyData = await verifyRes.json();
             if (verifyRes.ok) {
               setPlacedOrder(verifyData.order);
               setOrderPlaced(true);
-              clearCart();
+              await fetchCart(); 
             } else {
               alert(verifyData.error || "Payment verification failed.");
             }
@@ -288,10 +332,11 @@ function CheckOut() {
               </button>
             ) : (
               <button 
-                className="px-10 py-3 bg-[#ffa41c] text-[#111] font-bold rounded-xl shadow-lg shadow-[#ffa41c]/20 active:scale-95 transition-all"
+                className="px-10 py-3 bg-[#ffa41c] text-[#111] font-bold rounded-xl shadow-lg shadow-[#ffa41c]/20 active:scale-95 transition-all disabled:opacity-50"
                 onClick={handleSubmit}
+                disabled={isLoadingTotal}
               >
-                Place Order (₹{cartTotal})
+                {isLoadingTotal ? "Verifying..." : `Place Order (₹${finalTotal})`}
               </button>
             )}
           </div>
@@ -301,7 +346,7 @@ function CheckOut() {
         <div className="bg-[#1a1a1a] p-8 rounded-3xl border border-white/10 shadow-xl lg:sticky lg:top-28">
           <h3 className="text-lg font-bold text-white mb-6 border-b border-white/10 pb-4">Order Summary</h3>
           <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-            {cartItems.map((item, idx) => (
+            {selectedItems.map((item, idx) => (
               <div key={idx} className="flex gap-4">
                 <div className="w-12 h-12 bg-white rounded-lg p-1 flex-shrink-0">
                   <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
@@ -317,7 +362,7 @@ function CheckOut() {
           <div className="mt-8 space-y-3 pt-6 border-t border-white/10">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Subtotal</span>
-              <span className="text-white">₹{cartTotal}</span>
+              <span className="text-white">₹{isLoadingTotal ? "..." : verifiedTotal || "0"}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Delivery</span>
@@ -325,7 +370,7 @@ function CheckOut() {
             </div>
             <div className="flex justify-between items-end pt-3">
               <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total</span>
-              <span className="text-3xl font-black text-[#febd69]">₹{cartTotal + (formData.deliveryOption === 'express' ? 99 : 0)}</span>
+              <span className="text-3xl font-black text-[#febd69]">₹{isLoadingTotal ? "..." : finalTotal}</span>
             </div>
           </div>
         </div>

@@ -24,8 +24,8 @@ function App() {
     <ErrorBoundary>
       <ToastProvider>
         <SearchProvider>
-          <CartProvider>
-            <AuthProvider>
+          <AuthProvider>
+            <CartProvider>
               <BrowserRouter>
               <div className="min-h-screen bg-[#0f1111] flex flex-col">
                 <AmazonNavbar />
@@ -44,8 +44,8 @@ function App() {
                 </main>
               </div>
             </BrowserRouter>
-          </AuthProvider>
-        </CartProvider>
+          </CartProvider>
+        </AuthProvider>
       </SearchProvider>
       </ToastProvider>
     </ErrorBoundary>

@@ -20,6 +20,7 @@ export function AuthProvider({children}) {
     });
 
     setUser(null);
+    localStorage.removeItem("shop_abhi_cart");
   } catch (err) {
     console.error("Logout error:", err.message);
   }
