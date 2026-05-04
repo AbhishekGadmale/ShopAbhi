@@ -20,9 +20,30 @@ function ProductDetails() {
   const [error, setError] = useState(null);
 
   // Review states
+  const [reviews, setReviews] = useState([]);
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [totalReviewsPages, setTotalReviewsPages] = useState(1);
+  const [isReviewsLoading, setIsReviewsLoading] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  const fetchReviews = async (page = 1, shouldAppend = false) => {
+    setIsReviewsLoading(true);
+    try {
+      const res = await fetchWithAuth(`/api/products/${id}/reviews?page=${page}&limit=5`);
+      const data = await res.json();
+      if (res.ok) {
+        setReviews(prev => shouldAppend ? [...prev, ...data.reviews] : data.reviews);
+        setTotalReviewsPages(data.pages);
+        setReviewsPage(data.page);
+      }
+    } catch (err) {
+      console.error("Failed to fetch reviews", err);
+    } finally {
+      setIsReviewsLoading(false);
+    }
+  };
   
   // High-Fidelity States
   const [selectedColor, setSelectedColor] = useState("Midnight Black");
@@ -63,10 +84,11 @@ function ProductDetails() {
         addToast("Review submitted successfully!");
         setReviewComment("");
         setReviewRating(5);
-        // Refresh product data
+        // Refresh product and reviews data
         const prodRes = await fetchWithAuth(`/api/products/${id}`);
         const prodData = await prodRes.json();
         if (prodRes.ok) setProduct(prodData.product);
+        fetchReviews(1, false);
       } else {
         addToast(data.error || "Failed to submit review", "error");
       }
@@ -87,6 +109,7 @@ function ProductDetails() {
 
         if (res.ok && data.product) {
           setProduct(data.product);
+          fetchReviews(1, false);
 
           const allRes = await fetchWithAuth("/api/products");
           const allData = await allRes.json();
@@ -178,7 +201,7 @@ function ProductDetails() {
               <div className="bg-white/10 px-3 py-1 rounded-full flex items-center gap-1">
                 <span className="text-yellow-400">★</span>
                 <span className="text-white font-medium">{product.rating} / 5</span>
-                <span className="text-gray-500 text-xs ml-1">({product.reviews || 124} reviews)</span>
+                <span className="text-gray-500 text-xs ml-1">({product.numReviews || 0} reviews)</span>
               </div>
             </div>
           </div>
@@ -322,7 +345,7 @@ function ProductDetails() {
 
           <div className="space-y-3 hidden md:block">
             {[5, 4, 3, 2, 1].map((star) => {
-              const count = product.reviews?.filter(r => Math.floor(r.rating) === star).length || 0;
+              const count = product.ratingDistribution ? product.ratingDistribution[star] : 0;
               const percent = product.numReviews > 0 ? (count / product.numReviews) * 100 : 0;
               return (
                 <div key={star} className="flex items-center gap-3">
@@ -345,26 +368,40 @@ function ProductDetails() {
             </select>
           </div>
           
-          {product.reviews && product.reviews.length > 0 ? (
-            product.reviews.map((rev) => (
-              <div key={rev._id} className="bg-[#1a1a1a] p-6 rounded-2xl border border-white/5 animate-in fade-in slide-in-from-bottom-2">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-[#febd69]/20 flex items-center justify-center text-[#febd69] font-bold">
-                    {rev.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="text-white font-bold text-sm">{rev.name}</p>
-                    <div className="text-[#febd69] text-xs">
-                      {"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}
+          {reviews && reviews.length > 0 ? (
+            <>
+              {reviews.map((rev) => (
+                <div key={rev._id} className="bg-[#1a1a1a] p-6 rounded-2xl border border-white/5 animate-in fade-in slide-in-from-bottom-2">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-[#febd69]/20 flex items-center justify-center text-[#febd69] font-bold">
+                      {rev.name.charAt(0).toUpperCase()}
                     </div>
+                    <div>
+                      <p className="text-white font-bold text-sm">{rev.name}</p>
+                      <div className="text-[#febd69] text-xs">
+                        {"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}
+                      </div>
+                    </div>
+                    <span className="ml-auto text-gray-500 text-[10px]">
+                      {new Date(rev.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
-                  <span className="ml-auto text-gray-500 text-[10px]">
-                    {new Date(rev.createdAt).toLocaleDateString()}
-                  </span>
+                  <p className="text-gray-400 text-sm leading-relaxed">{rev.comment}</p>
                 </div>
-                <p className="text-gray-400 text-sm leading-relaxed">{rev.comment}</p>
-              </div>
-            ))
+              ))}
+              
+              {reviewsPage < totalReviewsPages && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={() => fetchReviews(reviewsPage + 1, true)}
+                    disabled={isReviewsLoading}
+                    className="px-8 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/10 transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    {isReviewsLoading ? "Loading..." : "Load More Reviews"}
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="py-20 text-center border-2 border-dashed border-white/5 rounded-3xl">
               <p className="text-gray-500 italic">No reviews yet. Be the first to share your thoughts!</p>

@@ -287,7 +287,7 @@ function ProductList({ hideFilters = false }) {
                     
                     <div className="flex items-center gap-1 mb-2">
                       <span className="text-[#febd69] text-xs">{"★".repeat(Math.floor(p.rating || 0))}</span>
-                      <span className="text-gray-500 text-[10px] font-medium">({p.reviews || 0})</span>
+                      <span className="text-gray-500 text-[10px] font-medium">({p.numReviews || 0})</span>
                     </div>
 
                     <p className="text-white font-bold text-lg mb-4">₹{p.price}</p>
