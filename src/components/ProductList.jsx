@@ -5,10 +5,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ProductCardSkeleton } from "./Skeleton";
 import { fetchWithAuth } from "../api/client";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import Breadcrumbs from "./Breadcrumbs";
 
 function ProductList({ hideFilters = false }) {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(["All"]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [displayProducts, setDisplayProducts] = useState([]);
@@ -25,29 +27,59 @@ function ProductList({ hideFilters = false }) {
   const Navigate = useNavigate();
   const { addToCart, openMiniCart } = useCart();
   const { addToast } = useToast();
+  const { user, refreshUser } = useAuth();
   const { searchTerm } = useSearch();
   const location = useLocation();
   const isSearchPage = location.pathname.includes("/search");
   const [addedItems, setAddedItems] = useState(new Set());
 
-  const categories = useMemo(() => {
-    const cats = new Set(products.map((p) => p.category).filter(Boolean));
-    return ["All", ...Array.from(cats)];
-  }, [products]);
-
   const isAdded = (productId) => {
     return addedItems.has(productId);
   };
 
+  const isWishlisted = (productId) => {
+    return user?.wishlist?.some(item => (item._id || item.id) === productId);
+  };
+
+  const handleToggleWishlist = async (e, productId) => {
+    e.stopPropagation();
+    if (!user) {
+      addToast("Please login to use wishlist", "error");
+      return;
+    }
+    try {
+      const res = await fetchWithAuth("/api/users/wishlist", {
+        method: "POST",
+        body: JSON.stringify({ productId }),
+      });
+      if (res.ok) {
+        addToast(isWishlisted(productId) ? "Removed from wishlist" : "Added to wishlist");
+        refreshUser();
+      }
+    } catch (err) {
+      addToast("Failed to update wishlist", "error");
+    }
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchInitialData = async () => {
       try {
-        const res = await fetchWithAuth("/api/products");
-        const data = await res.json();
-        if (res.ok) {
+        const [prodRes, catRes] = await Promise.all([
+          fetchWithAuth("/api/products"),
+          fetchWithAuth("/api/products/categories")
+        ]);
+
+        if (prodRes.ok) {
+          const data = await prodRes.json();
           setProducts(data.products || []);
         } else {
-          setError(data.message || "Failed to load products");
+          setError("Failed to load products");
+        }
+
+        if (catRes.ok) {
+          const data = await catRes.json();
+          const catNames = (data.categories || []).map(c => c.name);
+          setCategories(["All", ...catNames]);
         }
       } catch (err) {
         setError("Network error. Please try again.");
@@ -55,7 +87,7 @@ function ProductList({ hideFilters = false }) {
         setIsLoading(false);
       }
     };
-    fetchProducts();
+    fetchInitialData();
   }, []);
 
   useEffect(() => {
@@ -276,6 +308,12 @@ function ProductList({ hideFilters = false }) {
                         BESTSELLER
                       </span>
                     )}
+                    <button 
+                      className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${isWishlisted(productId) ? "bg-red-500 text-white" : "bg-white/10 text-white hover:bg-white/20"}`}
+                      onClick={(e) => handleToggleWishlist(e, productId)}
+                    >
+                      {isWishlisted(productId) ? "❤️" : "🤍"}
+                    </button>
                   </div>
                   
                   <div className="p-4 flex flex-col flex-grow">

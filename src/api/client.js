@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "https://shopabhi-backend.onrender.com";
+export const API_BASE = import.meta.env.VITE_API_BASE || "https://shopabhi-backend.onrender.com";
 
 export const fetchWithAuth = async (url, options = {}) => {
   const headers = {

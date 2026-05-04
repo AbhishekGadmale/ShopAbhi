@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
-const API_BASE = import.meta.env.VITE_API_BASE || "https://shopabhi-backend.onrender.com";
+import { API_BASE } from "../api/client";
 
 const Signup = () => {
   const navigate = useNavigate();

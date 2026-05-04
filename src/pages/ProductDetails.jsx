@@ -10,7 +10,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 function ProductDetails() {
   const { id } = useParams();
   const { addToCart, openMiniCart } = useCart();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
@@ -18,6 +18,30 @@ function ProductDetails() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const isWishlisted = (productId) => {
+    return user?.wishlist?.some(item => (item._id || item.id) === productId);
+  };
+
+  const handleToggleWishlist = async (e) => {
+    e.stopPropagation();
+    if (!user) {
+      addToast("Please login to use wishlist", "error");
+      return;
+    }
+    try {
+      const res = await fetchWithAuth("/api/users/wishlist", {
+        method: "POST",
+        body: JSON.stringify({ productId: id }),
+      });
+      if (res.ok) {
+        addToast(isWishlisted(id) ? "Removed from wishlist" : "Added to wishlist");
+        refreshUser();
+      }
+    } catch (err) {
+      addToast("Failed to update wishlist", "error");
+    }
+  };
 
   // Review states
   const [reviews, setReviews] = useState([]);
@@ -181,6 +205,13 @@ function ProductDetails() {
                 mixBlendMode: "multiply"
               }}
             />
+            {/* Wishlist Button */}
+            <button 
+              className={`absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center transition-all z-10 shadow-lg ${isWishlisted(id) ? "bg-red-500 text-white" : "bg-white/20 text-white hover:bg-white/40"}`}
+              onClick={handleToggleWishlist}
+            >
+              {isWishlisted(id) ? "❤️" : "🤍"}
+            </button>
           </div>
         </div>
 

@@ -13,6 +13,8 @@ import SearchResults from "./pages/SearchResults";
 import ProductDetails from "./pages/ProductDetails";
 import ErrorBoundary from "./components/ErrorBoundary";
 import OrderHistory from "./pages/OrderHistory.jsx";
+import UserProfile from "./pages/UserProfile.jsx";
+import Wishlist from "./pages/Wishlist.jsx";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import Login from "./pages/Login";
@@ -40,6 +42,8 @@ function App() {
                     <Route path="/search" element={<SearchResults />} />
                     <Route path="/product/:id" element={<ProductDetails />} />
                     <Route path="/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
+                    <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                    <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

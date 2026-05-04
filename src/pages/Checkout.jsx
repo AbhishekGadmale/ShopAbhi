@@ -1,18 +1,20 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { fetchWithAuth } from "../api/client";
 
 const STEPS = ["Address", "Delivery", "Payment", "Review"];
 
 function CheckOut() {
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [verifiedTotal, setVerifiedTotal] = useState(0);
   const [isLoadingTotal, setIsLoadingTotal] = useState(false);
   const [idempotencyKey] = useState(() => crypto.randomUUID());
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    name: user?.name || "",
+    email: user?.email || "",
     phone: "",
     address: "",
     city: "",
@@ -20,6 +22,15 @@ function CheckOut() {
     deliveryOption: "standard",
     paymentMethod: "cod",
   });
+
+  const handleSelectAddress = (addr) => {
+    setFormData({
+      ...formData,
+      address: addr.street,
+      city: addr.city,
+      pincode: addr.zipCode,
+    });
+  };
 
   const [orderPlaced, setOrderPlaced] = useState(false);
   const { selectedItems, fetchCart } = useCart();
@@ -229,6 +240,27 @@ function CheckOut() {
           {currentStep === 0 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <h2 className="text-2xl font-bold text-white mb-8">Shipping Address</h2>
+              
+              {/* Saved Addresses Selector */}
+              {user?.addresses?.length > 0 && (
+                <div className="mb-10">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Saved Addresses</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {user.addresses.map((addr) => (
+                      <button 
+                        key={addr._id}
+                        onClick={() => handleSelectAddress(addr)}
+                        className={`p-4 rounded-xl border text-left transition-all ${formData.address === addr.street ? "border-[#febd69] bg-[#febd69]/5" : "border-white/5 bg-white/5 hover:border-white/20"}`}
+                      >
+                        <p className="text-white font-bold text-sm mb-1">{user.name} {addr.isDefault && <span className="text-[8px] bg-[#febd69] text-[#111] px-1 rounded ml-2">DEFAULT</span>}</p>
+                        <p className="text-gray-400 text-xs line-clamp-1">{addr.street}</p>
+                        <p className="text-gray-500 text-[10px]">{addr.city}, {addr.state} {addr.zipCode}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Full Name *</label>

@@ -48,6 +48,17 @@ function AmazonNavbar() {
             <Link to="/orders" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
               My Orders
             </Link>
+            <Link to="/wishlist" className="relative text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
+              ❤️ Wishlist
+              {user?.wishlist?.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full">
+                  {user.wishlist.length}
+                </span>
+              )}
+            </Link>
+            <Link to="/profile" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
+              Profile
+            </Link>
             <Link to="/" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
               Home
             </Link>
@@ -137,6 +148,8 @@ function AmazonNavbar() {
           <Link to="/" onClick={closeDrawer} className="text-white hover:text-[#febd69] py-2 border-b border-white/5 transition">Home</Link>
           <Link to="/cart" onClick={closeDrawer} className="text-white hover:text-[#febd69] py-2 border-b border-white/5 transition">Cart</Link>
           <Link to="/orders" onClick={closeDrawer} className="text-white hover:text-[#febd69] py-2 border-b border-white/5 transition">My Orders</Link>
+          <Link to="/wishlist" onClick={closeDrawer} className="text-white hover:text-[#febd69] py-2 border-b border-white/5 transition">Wishlist</Link>
+          <Link to="/profile" onClick={closeDrawer} className="text-white hover:text-[#febd69] py-2 border-b border-white/5 transition">Profile</Link>
           {user && user.email ? (
             <button className="w-full text-center bg-transparent border border-white/30 text-white py-2 rounded-md hover:bg-white/10 transition mt-2" onClick={handleLogout}>
               Logout
