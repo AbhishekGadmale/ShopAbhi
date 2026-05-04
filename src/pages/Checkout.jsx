@@ -10,8 +10,44 @@ function CheckOut() {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [verifiedTotal, setVerifiedTotal] = useState(0);
+  const [subtotal, setSubtotal] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const [isLoadingTotal, setIsLoadingTotal] = useState(false);
   const [idempotencyKey] = useState(() => crypto.randomUUID());
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setIsValidatingCoupon(true);
+    try {
+      const res = await fetchWithAuth("/api/orders/validate-coupon", {
+        method: "POST",
+        body: JSON.stringify({ code: couponCode, cartTotal: subtotal })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDiscount(data.discount);
+        setAppliedCoupon(data.code);
+        setVerifiedTotal(subtotal - data.discount);
+        alert("Coupon applied successfully!");
+      } else {
+        alert(data.error || "Invalid coupon");
+      }
+    } catch (err) {
+      alert("Failed to validate coupon");
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon("");
+    setDiscount(0);
+    setVerifiedTotal(subtotal);
+  };
+
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -58,12 +94,15 @@ function CheckOut() {
           const res = await fetchWithAuth("/api/orders/preview", {
             method: "POST",
             body: JSON.stringify({
-              items: checkoutItems.map(item => ({ id: item.id, quantity: item.quantity }))
+              items: checkoutItems.map(item => ({ id: item.id || item._id, quantity: item.quantity })),
+              couponCode: appliedCoupon
             })
           });
           const data = await res.json();
           if (res.ok) {
             setVerifiedTotal(data.total);
+            setSubtotal(data.subtotal);
+            setDiscount(data.discount);
           } else {
             alert(data.error || "Failed to verify total with server.");
           }
@@ -75,7 +114,7 @@ function CheckOut() {
       };
       getVerifiedTotal();
     }
-  }, [checkoutItems, currentStep]);
+  }, [checkoutItems, currentStep, appliedCoupon]);
 
   const finalTotal = verifiedTotal + (formData.deliveryOption === 'express' ? 99 : 0);
 
@@ -119,7 +158,8 @@ function CheckOut() {
           body: JSON.stringify({ 
             items: minimalItems, 
             details: orderDetails,
-            idempotencyKey 
+            idempotencyKey,
+            couponCode: appliedCoupon
           }),
         });
         const data = await res.json();
@@ -148,7 +188,8 @@ function CheckOut() {
           body: JSON.stringify({ 
             items: minimalItems,
             details: orderDetails,
-            idempotencyKey
+            idempotencyKey,
+            couponCode: appliedCoupon
           }),
         });
         const orderDataFromBackend = await orderRes.json();
@@ -400,11 +441,49 @@ function CheckOut() {
               </div>
             ))}
           </div>
+
+          {/* Coupon Code Section */}
+          <div className="mt-8 pt-6 border-t border-white/10">
+            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">Promo Code</label>
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between bg-[#febd69]/10 border border-[#febd69]/20 p-3 rounded-xl">
+                <div>
+                  <p className="text-[#febd69] font-bold text-xs">{appliedCoupon}</p>
+                  <p className="text-[10px] text-green-500">Coupon Applied!</p>
+                </div>
+                <button onClick={handleRemoveCoupon} className="text-gray-400 hover:text-white transition">✕</button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Enter code"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="flex-grow bg-black/30 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#febd69]"
+                />
+                <button 
+                  onClick={handleApplyCoupon}
+                  disabled={isValidatingCoupon || !couponCode}
+                  className="bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold px-4 rounded-xl border border-white/10 transition-all disabled:opacity-50"
+                >
+                  {isValidatingCoupon ? "..." : "Apply"}
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="mt-8 space-y-3 pt-6 border-t border-white/10">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Subtotal</span>
-              <span className="text-white">₹{isLoadingTotal ? "..." : verifiedTotal || "0"}</span>
+              <span className="text-white">₹{isLoadingTotal ? "..." : subtotal || "0"}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-green-500">Discount</span>
+                <span className="text-green-500">- ₹{discount}</span>
+              </div>
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Delivery</span>
               <span className="text-green-500">{formData.deliveryOption === 'express' ? '+ ₹99' : 'FREE'}</span>

@@ -58,7 +58,7 @@ function Login() {
         <div className="space-y-2">
           <div className="flex justify-between items-center px-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Password</label>
-            <Link to="/forgot-password" title="Feature coming soon" className="text-[10px] font-bold text-[#febd69] hover:underline uppercase tracking-widest">Forgot?</Link>
+            <Link to="/forgot-password"  className="text-[10px] font-bold text-[#febd69] hover:underline uppercase tracking-widest">Forgot?</Link>
           </div>
           <input
             type="password"

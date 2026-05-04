@@ -15,6 +15,8 @@ function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [coupons, setCoupons] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -28,6 +30,19 @@ function AdminDashboard() {
     category: "",
     description: "",
     stock: ""
+  });
+
+  // Coupon Modal State
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState(null);
+  const [couponForm, setCouponForm] = useState({
+    code: "",
+    discountType: "percentage",
+    discountValue: "",
+    minPurchase: "",
+    maxDiscount: "",
+    expiryDate: "",
+    usageLimit: ""
   });
 
   const navigate = useNavigate();
@@ -55,6 +70,120 @@ function AdminDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchCoupons = async () => {
+    try {
+      const res = await fetchWithAuth("/api/admin/coupons");
+      if (res.ok) {
+        setCoupons((await res.json()).coupons);
+      }
+    } catch (err) {
+      console.error("Failed to fetch coupons", err);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetchWithAuth("/api/admin/users");
+      if (res.ok) {
+        setUsers((await res.json()).users);
+      }
+    } catch (err) {
+      console.error("Failed to fetch users", err);
+    }
+  };
+
+  const handleUpdateUserRole = async (userId, role) => {
+    try {
+      const res = await fetchWithAuth(`/api/admin/users/${userId}/role`, {
+        method: "PATCH",
+        body: JSON.stringify({ role })
+      });
+      if (res.ok) {
+        setUsers(users.map(u => u._id === userId ? { ...u, role } : u));
+      }
+    } catch (err) {
+      alert("Failed to update user role");
+    }
+  };
+
+  const handleDeleteUser = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+    try {
+      const res = await fetchWithAuth(`/api/admin/users/${id}`, { method: "DELETE" });
+      if (res.ok) setUsers(users.filter(u => u._id !== id));
+    } catch (err) {
+      alert("Failed to delete user");
+    }
+  };
+
+  const handleSaveCoupon = async (e) => {
+    e.preventDefault();
+    try {
+      const url = editingCoupon 
+        ? `/api/admin/coupons/${editingCoupon._id}` 
+        : "/api/admin/coupons";
+      const method = editingCoupon ? "PATCH" : "POST";
+
+      const res = await fetchWithAuth(url, {
+        method,
+        body: JSON.stringify(couponForm)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (editingCoupon) {
+          setCoupons(coupons.map(c => c._id === editingCoupon._id ? data.coupon : c));
+        } else {
+          setCoupons([data.coupon, ...coupons]);
+        }
+        setShowCouponModal(false);
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to save coupon");
+      }
+    } catch (err) {
+      alert("Error saving coupon");
+    }
+  };
+
+  const deleteCoupon = async (id) => {
+    if (!window.confirm("Delete this coupon?")) return;
+    try {
+      const res = await fetchWithAuth(`/api/admin/coupons/${id}`, { method: "DELETE" });
+      if (res.ok) setCoupons(coupons.filter(c => c._id !== id));
+    } catch (err) {
+      alert("Failed to delete coupon");
+    }
+  };
+
+  const handleAddCoupon = () => {
+    setEditingCoupon(null);
+    setCouponForm({
+      code: "",
+      discountType: "percentage",
+      discountValue: "",
+      minPurchase: 0,
+      maxDiscount: "",
+      expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      usageLimit: ""
+    });
+    setShowCouponModal(true);
+  };
+
+  const handleEditCoupon = (coupon) => {
+    setEditingCoupon(coupon);
+    setCouponForm({
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      minPurchase: coupon.minPurchase,
+      maxDiscount: coupon.maxDiscount || "",
+      expiryDate: new Date(coupon.expiryDate).toISOString().split('T')[0],
+      usageLimit: coupon.usageLimit || ""
+    });
+    setShowCouponModal(true);
   };
 
   const updateOrderStatus = async (orderId, status) => {
@@ -205,6 +334,8 @@ function AdminDashboard() {
 
   useEffect(() => {
     if (activeTab === "reviews") fetchReviews();
+    if (activeTab === "coupons") fetchCoupons();
+    if (activeTab === "users") fetchUsers();
   }, [activeTab]);
 
   if (loading) return <div className="text-white text-center py-20">Loading Admin Panel...</div>;
@@ -214,7 +345,7 @@ function AdminDashboard() {
       <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
         <h1 className="text-3xl font-black text-white">Admin Dashboard</h1>
         <div className="flex flex-wrap justify-center bg-[#1a1a1a] p-1 rounded-xl border border-white/10">
-          {["overview", "products", "orders", "categories", "reviews"].map(tab => (
+          {["overview", "products", "orders", "categories", "reviews", "coupons", "users"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -505,6 +636,128 @@ function AdminDashboard() {
         </div>
       )}
 
+      {activeTab === "coupons" && (
+        <div className="bg-[#1a1a1a] rounded-3xl border border-white/10 overflow-hidden">
+          <div className="p-6 border-b border-white/10 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-white">Coupons Management</h2>
+            <button 
+              onClick={handleAddCoupon}
+              className="bg-[#febd69] text-[#111] px-4 py-2 rounded-lg font-bold text-sm"
+            >
+              + Add Coupon
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
+                  <th className="px-6 py-4 font-bold">Code</th>
+                  <th className="px-6 py-4 font-bold">Discount</th>
+                  <th className="px-6 py-4 font-bold">Min. Purchase</th>
+                  <th className="px-6 py-4 font-bold">Expiry</th>
+                  <th className="px-6 py-4 font-bold">Used</th>
+                  <th className="px-6 py-4 font-bold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {coupons.map(c => (
+                  <tr key={c._id} className="hover:bg-white/5 transition">
+                    <td className="px-6 py-4">
+                      <span className="bg-white/5 px-2 py-1 rounded font-mono text-white text-xs">{c.code}</span>
+                    </td>
+                    <td className="px-6 py-4 text-white text-sm">
+                      {c.discountType === "percentage" ? `${c.discountValue}%` : `₹${c.discountValue}`}
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 text-sm">₹{c.minPurchase}</td>
+                    <td className="px-6 py-4 text-gray-400 text-sm">
+                      {new Date(c.expiryDate).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 text-sm">
+                      {c.usedCount} / {c.usageLimit || "∞"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleEditCoupon(c)}
+                          className="p-2 text-blue-400 hover:bg-blue-400/10 rounded-lg transition"
+                        >
+                          ✏️
+                        </button>
+                        <button 
+                          onClick={() => deleteCoupon(c._id)} 
+                          className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "users" && (
+        <div className="bg-[#1a1a1a] rounded-3xl border border-white/10 overflow-hidden">
+          <div className="p-6 border-b border-white/10">
+            <h2 className="text-xl font-bold text-white">Users Management</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
+                  <th className="px-6 py-4 font-bold">User</th>
+                  <th className="px-6 py-4 font-bold">Role</th>
+                  <th className="px-6 py-4 font-bold">Registered</th>
+                  <th className="px-6 py-4 font-bold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {users.map(u => (
+                  <tr key={u._id} className="hover:bg-white/5 transition">
+                    <td className="px-6 py-4">
+                      <p className="text-white text-sm font-medium">{u.name}</p>
+                      <p className="text-gray-500 text-[10px]">{u.email}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <select 
+                        value={u.role}
+                        onChange={(e) => handleUpdateUserRole(u._id, e.target.value)}
+                        className={`bg-black/30 border border-white/10 rounded px-2 py-1 text-[10px] font-bold uppercase outline-none focus:border-[#febd69] ${
+                          u.role === "superadmin" ? "text-purple-400" :
+                          u.role === "admin" ? "text-[#febd69]" :
+                          u.role === "support" ? "text-blue-400" :
+                          "text-gray-400"
+                        }`}
+                      >
+                        <option value="user">User</option>
+                        <option value="support">Support</option>
+                        <option value="admin">Admin</option>
+                        <option value="superadmin">SuperAdmin</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 text-xs">
+                      {new Date(u.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button 
+                        onClick={() => handleDeleteUser(u._id)} 
+                        className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition"
+                        title="Delete User"
+                      >
+                        🗑️
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Product Modal */}
       {showProductModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] flex items-center justify-center p-4">
@@ -590,6 +843,110 @@ function AdminDashboard() {
                   className="flex-grow py-4 bg-[#febd69] text-[#111] font-bold rounded-xl active:scale-95 transition shadow-lg shadow-[#febd69]/10"
                 >
                   {editingProduct ? "Update Product" : "Create Product"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Coupon Modal */}
+      {showCouponModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] w-full max-w-lg rounded-3xl border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+              <h3 className="text-xl font-bold text-white">{editingCoupon ? "Edit Coupon" : "Add New Coupon"}</h3>
+              <button onClick={() => setShowCouponModal(false)} className="text-gray-400 hover:text-white transition">✕</button>
+            </div>
+            <form onSubmit={handleSaveCoupon} className="p-8 space-y-6">
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Coupon Code</label>
+                <input 
+                  required
+                  type="text"
+                  placeholder="e.g., SUMMER50"
+                  value={couponForm.code}
+                  onChange={(e) => setCouponForm({...couponForm, code: e.target.value.toUpperCase()})}
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#febd69] outline-none font-mono"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Type</label>
+                  <select 
+                    value={couponForm.discountType}
+                    onChange={(e) => setCouponForm({...couponForm, discountType: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#febd69] outline-none"
+                  >
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="fixed">Fixed Amount (₹)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Value</label>
+                  <input 
+                    required
+                    type="number"
+                    value={couponForm.discountValue}
+                    onChange={(e) => setCouponForm({...couponForm, discountValue: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#febd69] outline-none"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Min. Purchase</label>
+                  <input 
+                    type="number"
+                    value={couponForm.minPurchase}
+                    onChange={(e) => setCouponForm({...couponForm, minPurchase: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#febd69] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Max Discount (Opt.)</label>
+                  <input 
+                    type="number"
+                    value={couponForm.maxDiscount}
+                    onChange={(e) => setCouponForm({...couponForm, maxDiscount: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#febd69] outline-none"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Expiry Date</label>
+                  <input 
+                    required
+                    type="date"
+                    value={couponForm.expiryDate}
+                    onChange={(e) => setCouponForm({...couponForm, expiryDate: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#febd69] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Usage Limit (Opt.)</label>
+                  <input 
+                    type="number"
+                    placeholder="Unlimited"
+                    value={couponForm.usageLimit}
+                    onChange={(e) => setCouponForm({...couponForm, usageLimit: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#febd69] outline-none"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowCouponModal(false)}
+                  className="flex-grow py-4 bg-white/5 text-white font-bold rounded-xl hover:bg-white/10 transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-grow py-4 bg-[#febd69] text-[#111] font-bold rounded-xl active:scale-95 transition shadow-lg shadow-[#febd69]/10"
+                >
+                  {editingCoupon ? "Update Coupon" : "Create Coupon"}
                 </button>
               </div>
             </form>

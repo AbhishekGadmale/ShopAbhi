@@ -70,9 +70,31 @@ function ProductDetails() {
   };
   
   // High-Fidelity States
-  const [selectedColor, setSelectedColor] = useState("Midnight Black");
-  const [selectedSize, setSelectedSize] = useState("M");
+  const [activeImage, setActiveImage] = useState("");
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selections, setSelections] = useState({}); // e.g. { Color: "Black", Size: "M" }
   const [zoomStyle, setZoomStyle] = useState({ display: "none" });
+
+  useEffect(() => {
+    if (product) {
+      setActiveImage(product.image);
+      // Initialize selections with first available values
+      const initialSelections = {};
+      product.attributes?.forEach(attr => {
+        initialSelections[attr.name] = attr.values[0];
+      });
+      setSelections(initialSelections);
+    }
+  }, [product]);
+
+  useEffect(() => {
+    if (product?.variants?.length > 0) {
+      const variant = product.variants.find(v => 
+        v.attributes.every(attr => selections[attr.name] === attr.value)
+      );
+      setSelectedVariant(variant || null);
+    }
+  }, [selections, product]);
 
   const handleMouseMove = (e) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -81,7 +103,7 @@ function ProductDetails() {
     setZoomStyle({
       display: "block",
       backgroundPosition: `${x}% ${y}%`,
-      backgroundImage: `url(${product.image})`,
+      backgroundImage: `url(${activeImage})`,
     });
   };
 
@@ -175,11 +197,15 @@ function ProductDetails() {
       />
       
       <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
-        {/* Left: Thumbnail Sidebar (Mocked) */}
+        {/* Left: Thumbnail Sidebar */}
         <div className="hidden md:flex md:col-span-1 flex-col gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="aspect-square bg-[#f3f3f3] rounded-lg border-2 border-[#febd69] overflow-hidden cursor-pointer p-2">
-              <img src={product.image} className="w-full h-full object-contain mix-blend-multiply" alt="thumb" />
+          {(product.images && product.images.length > 0 ? product.images : [product.image]).map((img, i) => (
+            <div 
+              key={i} 
+              onClick={() => setActiveImage(img)}
+              className={`aspect-square bg-[#f3f3f3] rounded-lg border-2 overflow-hidden cursor-pointer p-2 transition-all ${activeImage === img ? "border-[#febd69] scale-105 shadow-lg" : "border-white/5 opacity-60 hover:opacity-100"}`}
+            >
+              <img src={img} className="w-full h-full object-contain mix-blend-multiply" alt={`thumb-${i}`} />
             </div>
           ))}
         </div>
@@ -192,7 +218,7 @@ function ProductDetails() {
             onMouseLeave={handleMouseLeave}
           >
             <img
-              src={product.image}
+              src={activeImage}
               className="max-w-full max-h-[450px] object-contain mix-blend-multiply transition-opacity duration-300 group-hover:opacity-0"
               alt={product.name}
             />
@@ -228,7 +254,7 @@ function ProductDetails() {
             </div>
             
             <div className="flex items-center gap-4">
-              <span className="text-3xl font-bold text-[#febd69]">₹{product.price}</span>
+              <span className="text-3xl font-bold text-[#febd69]">₹{selectedVariant?.price || product.price}</span>
               <div className="bg-white/10 px-3 py-1 rounded-full flex items-center gap-1">
                 <span className="text-yellow-400">★</span>
                 <span className="text-white font-medium">{product.rating} / 5</span>
@@ -237,51 +263,64 @@ function ProductDetails() {
             </div>
           </div>
 
-          {/* Color Variations */}
-          <div className="space-y-3">
-            <p className="text-white font-bold text-sm">Color: <span className="text-gray-400 font-normal">{selectedColor}</span></p>
-            <div className="flex gap-3">
-              {["#000", "#555", "#febd69"].map((color, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedColor(["Midnight Black", "Space Gray", "Sunset Gold"][i])}
-                  className={`w-10 h-10 rounded-full border-2 transition-all p-1 ${selectedColor.includes(i === 0 ? "Black" : i === 1 ? "Gray" : "Gold") ? "border-[#febd69] scale-110" : "border-transparent"}`}
-                >
-                  <div className="w-full h-full rounded-full" style={{ backgroundColor: color }} />
-                </button>
-              ))}
+          {/* Dynamic Attributes */}
+          {product.attributes?.map((attr) => (
+            <div key={attr.name} className="space-y-3">
+              <p className="text-white font-bold text-sm">
+                {attr.name}: <span className="text-[#febd69] font-normal">{selections[attr.name]}</span>
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {attr.values.map((val) => (
+                  <button
+                    key={val}
+                    onClick={() => setSelections({ ...selections, [attr.name]: val })}
+                    className={`px-5 py-2 rounded-xl border-2 font-bold transition-all ${
+                      selections[attr.name] === val 
+                        ? "border-[#febd69] bg-[#febd69]/10 text-white scale-105" 
+                        : "border-white/10 text-gray-400 hover:border-white/30"
+                    }`}
+                  >
+                    {val}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Size Variations */}
-          <div className="space-y-3">
-            <p className="text-white font-bold text-sm">Size</p>
-            <div className="flex gap-2">
-              {["S", "M", "L", "XL"].map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`px-5 py-2 rounded-lg border font-bold transition-all ${selectedSize === size ? "bg-[#febd69] border-[#febd69] text-[#111]" : "border-white/10 text-white hover:border-white/30"}`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
+          ))}
 
           {/* Scarcity & Stock */}
           <div className="flex flex-col gap-2">
-            <p className={`font-bold text-sm ${product.stock < 10 ? "text-red-500" : "text-green-500"}`}>
-              {product.stock < 10 ? `⚠️ Only ${product.stock} left in stock - order soon.` : "✅ In Stock"}
-            </p>
+            {selectedVariant ? (
+               <p className={`font-bold text-sm ${selectedVariant.stock < 10 ? "text-red-500" : "text-green-500"}`}>
+                {selectedVariant.stock <= 0 
+                  ? "❌ Out of Stock" 
+                  : selectedVariant.stock < 10 
+                    ? `⚠️ Only ${selectedVariant.stock} left - order soon.` 
+                    : "✅ In Stock"}
+              </p>
+            ) : (
+              <p className={`font-bold text-sm ${product.stock < 10 ? "text-red-500" : "text-green-500"}`}>
+                {product.stock <= 0 
+                  ? "❌ Out of Stock" 
+                  : product.stock < 10 
+                    ? `⚠️ Only ${product.stock} left in stock - order soon.` 
+                    : "✅ In Stock"}
+              </p>
+            )}
             <p className="text-gray-400 text-xs">FREE delivery Monday, May 4. Order within 12 hrs 30 mins.</p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
             <button
-              className="flex-grow px-10 py-4 bg-[#ffa41c] hover:bg-[#ffb347] text-[#111] font-bold rounded-xl text-lg transition-all active:scale-95 shadow-xl shadow-[#ffa41c]/10"
+              disabled={selectedVariant ? selectedVariant.stock <= 0 : product.stock <= 0}
+              className="flex-grow px-10 py-4 bg-[#ffa41c] hover:bg-[#ffb347] text-[#111] font-bold rounded-xl text-lg transition-all active:scale-95 shadow-xl shadow-[#ffa41c]/10 disabled:opacity-50 disabled:grayscale cursor-pointer"
               onClick={() => {
-                addToCart(product);
+                const itemToCart = {
+                  ...product,
+                  price: selectedVariant?.price || product.price,
+                  variantId: selectedVariant?._id,
+                  selectedAttributes: selections
+                };
+                addToCart(itemToCart);
                 openMiniCart();
                 addToast(`${product.name} added to cart!`);
               }}
@@ -289,8 +328,20 @@ function ProductDetails() {
               Add to Cart
             </button>
             <button 
-              className="flex-grow px-10 py-4 bg-[#fb923c] hover:bg-[#f97316] text-[#111] font-bold rounded-xl text-lg transition-all active:scale-95"
-              onClick={() => navigate("/checkout", { state: { buyNowItem: { ...product, id: product._id || product.id, quantity: 1 } } })}
+              disabled={selectedVariant ? selectedVariant.stock <= 0 : product.stock <= 0}
+              className="flex-grow px-10 py-4 bg-[#fb923c] hover:bg-[#f97316] text-[#111] font-bold rounded-xl text-lg transition-all active:scale-95 disabled:opacity-50"
+              onClick={() => navigate("/checkout", { 
+                state: { 
+                  buyNowItem: { 
+                    ...product, 
+                    id: product._id || product.id, 
+                    price: selectedVariant?.price || product.price,
+                    variantId: selectedVariant?._id,
+                    selectedAttributes: selections,
+                    quantity: 1 
+                  } 
+                } 
+              })}
             >
               Buy Now
             </button>
