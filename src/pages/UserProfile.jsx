@@ -20,6 +20,7 @@ function UserProfile() {
     state: "",
     zipCode: "",
     country: "India",
+    phone: "",
     isDefault: false,
   });
 
@@ -52,7 +53,7 @@ function UserProfile() {
       if (res.ok) {
         addToast("Address added");
         setShowAddressForm(false);
-        setNewAddress({ street: "", city: "", state: "", zipCode: "", country: "India", isDefault: false });
+        setNewAddress({ street: "", city: "", state: "", zipCode: "", country: "India", phone: "", isDefault: false });
         refreshUser();
       }
     } catch (err) {
@@ -220,6 +221,16 @@ function UserProfile() {
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white focus:border-[#febd69] outline-none"
                       />
                     </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Phone Number</label>
+                      <input 
+                        required
+                        type="text"
+                        value={newAddress.phone}
+                        onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white focus:border-[#febd69] outline-none"
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <input 
@@ -252,6 +263,7 @@ function UserProfile() {
                       <p className="text-gray-400 text-sm leading-relaxed">{addr.street}</p>
                       <p className="text-gray-400 text-sm leading-relaxed">{addr.city}, {addr.state} {addr.zipCode}</p>
                       <p className="text-gray-400 text-sm leading-relaxed">{addr.country}</p>
+                      {addr.phone && <p className="text-gray-400 text-sm leading-relaxed">📞 {addr.phone}</p>}
                     </div>
                   ))}
                 </div>

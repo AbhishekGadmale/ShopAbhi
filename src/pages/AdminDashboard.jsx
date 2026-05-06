@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchWithAuth, API_BASE } from "../api/client";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../context/ToastContext";
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -10,6 +11,7 @@ import {
 const COLORS = ["#febd69", "#4ade80", "#60a5fa", "#f87171", "#a78bfa"];
 
 function AdminDashboard() {
+  const { addToast } = useToast();
   const [stats, setStats] = useState(null);
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
@@ -104,7 +106,7 @@ function AdminDashboard() {
         setUsers(users.map(u => u._id === userId ? { ...u, role } : u));
       }
     } catch (err) {
-      alert("Failed to update user role");
+      addToast("Failed to update user role", "error");
     }
   };
 
@@ -114,7 +116,7 @@ function AdminDashboard() {
       const res = await fetchWithAuth(`/api/admin/users/${id}`, { method: "DELETE" });
       if (res.ok) setUsers(users.filter(u => u._id !== id));
     } catch (err) {
-      alert("Failed to delete user");
+      addToast("Failed to delete user", "error");
     }
   };
 
@@ -141,10 +143,10 @@ function AdminDashboard() {
         setShowCouponModal(false);
       } else {
         const error = await res.json();
-        alert(error.error || "Failed to save coupon");
+        addToast(error.error || "Failed to save coupon", "error");
       }
     } catch (err) {
-      alert("Error saving coupon");
+      addToast("Error saving coupon", "error");
     }
   };
 
@@ -154,7 +156,7 @@ function AdminDashboard() {
       const res = await fetchWithAuth(`/api/admin/coupons/${id}`, { method: "DELETE" });
       if (res.ok) setCoupons(coupons.filter(c => c._id !== id));
     } catch (err) {
-      alert("Failed to delete coupon");
+      addToast("Failed to delete coupon", "error");
     }
   };
 
@@ -196,7 +198,7 @@ function AdminDashboard() {
         setOrders(orders.map(o => o._id === orderId ? { ...o, status } : o));
       }
     } catch (err) {
-      alert("Failed to update status");
+      addToast("Failed to update status", "error");
     }
   };
 
@@ -207,10 +209,10 @@ function AdminDashboard() {
       if (res.ok) {
         setProducts(products.filter(p => p._id !== id));
       } else {
-        alert("Failed to delete product");
+        addToast("Failed to delete product", "error");
       }
     } catch (err) {
-      alert("Error deleting product");
+      addToast("Error deleting product", "error");
     }
   };
 
@@ -263,10 +265,10 @@ function AdminDashboard() {
         setShowProductModal(false);
       } else {
         const error = await res.json();
-        alert(error.message || "Failed to save product");
+        addToast(error.message || "Failed to save product", "error");
       }
     } catch (err) {
-      alert("Error saving product");
+      addToast("Error saving product", "error");
     }
   };
 
@@ -276,7 +278,7 @@ function AdminDashboard() {
       const res = await fetchWithAuth(`/api/admin/categories/${id}`, { method: "DELETE" });
       if (res.ok) setCategories(categories.filter(c => c._id !== id));
     } catch (err) {
-      alert("Failed to delete category");
+      addToast("Failed to delete category", "error");
     }
   };
 
@@ -293,7 +295,7 @@ function AdminDashboard() {
         setCategories([...categories, data.category].sort((a, b) => a.name.localeCompare(b.name)));
       }
     } catch (err) {
-      alert("Failed to add category");
+      addToast("Failed to add category", "error");
     }
   };
 
@@ -314,7 +316,7 @@ function AdminDashboard() {
       const res = await fetchWithAuth(`/api/admin/reviews/${id}`, { method: "DELETE" });
       if (res.ok) setReviews(reviews.filter(r => r._id !== id));
     } catch (err) {
-      alert("Failed to delete review");
+      addToast("Failed to delete review", "error");
     }
   };
 
@@ -328,7 +330,7 @@ function AdminDashboard() {
         setReviews(reviews.map(r => r._id === id ? { ...r, status } : r));
       }
     } catch (err) {
-      alert("Failed to update status");
+      addToast("Failed to update status", "error");
     }
   };
 

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { API_BASE } from "../api/client";
 
 function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { addToast } = useToast();
   const [formdata, setFormdata] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,10 +28,10 @@ function Login() {
         login(data.user); // update context
         navigate("/");
       } else {
-        alert(data.error || "Login failed");
+        addToast(data.error || "Login failed", "error");
       }
     } catch (err) {
-      alert("Network error. Please try again.");
+      addToast("Network error. Please try again.", "error");
     } finally {
       setIsLoading(false);
     }

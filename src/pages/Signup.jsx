@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useToast } from "../context/ToastContext";
 import { API_BASE } from "../api/client";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [formdata, setFormData] = useState({ email: "", password: "", name: "" });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,13 +23,13 @@ const Signup = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Signup successful! Please login.");
+        addToast("Signup successful! Please login.", "success");
         navigate("/login");
       } else {
-        alert(data?.error || data?.message || "Signup failed");
+        addToast(data?.error || data?.message || "Signup failed", "error");
       }
     } catch (err) {
-      alert("Signup failed: cannot reach server.");
+      addToast("Signup failed: cannot reach server.", "error");
     } finally {
       setIsLoading(false);
     }

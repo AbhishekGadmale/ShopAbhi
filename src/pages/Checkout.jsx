@@ -2,12 +2,14 @@ import React, { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { fetchWithAuth } from "../api/client";
 
 const STEPS = ["Address", "Delivery", "Payment", "Review"];
 
 function CheckOut() {
   const { user } = useAuth();
+  const { addToast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [verifiedTotal, setVerifiedTotal] = useState(0);
   const [subtotal, setSubtotal] = useState(0);
@@ -31,12 +33,12 @@ function CheckOut() {
         setDiscount(data.discount);
         setAppliedCoupon(data.code);
         setVerifiedTotal(subtotal - data.discount);
-        alert("Coupon applied successfully!");
+        addToast("Coupon applied successfully!", "success");
       } else {
-        alert(data.error || "Invalid coupon");
+        addToast(data.error || "Invalid coupon", "error");
       }
     } catch (err) {
-      alert("Failed to validate coupon");
+      addToast("Failed to validate coupon", "error");
     } finally {
       setIsValidatingCoupon(false);
     }
@@ -48,13 +50,15 @@ function CheckOut() {
     setVerifiedTotal(subtotal);
   };
 
+  const defaultAddress = user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
+
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    phone: "",
-    address: "",
-    city: "",
-    pincode: "",
+    phone: defaultAddress?.phone || "",
+    address: defaultAddress?.street || "",
+    city: defaultAddress?.city || "",
+    pincode: defaultAddress?.zipCode || "",
     deliveryOption: "standard",
     paymentMethod: "cod",
   });
@@ -62,6 +66,7 @@ function CheckOut() {
   const handleSelectAddress = (addr) => {
     setFormData({
       ...formData,
+      phone: addr.phone || "",
       address: addr.street,
       city: addr.city,
       pincode: addr.zipCode,
@@ -104,7 +109,7 @@ function CheckOut() {
             setSubtotal(data.subtotal);
             setDiscount(data.discount);
           } else {
-            alert(data.error || "Failed to verify total with server.");
+            addToast(data.error || "Failed to verify total with server.", "error");
           }
         } catch (err) {
           console.error("Error verifying total", err);
@@ -123,7 +128,19 @@ function CheckOut() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
+  const nextStep = () => {
+    if (currentStep === 0) {
+      if (!formData.name || !formData.phone || !formData.address || !formData.city || !formData.pincode) {
+        addToast("Please fill all required address fields", "error");
+        return;
+      }
+      if (formData.phone.replace(/\D/g, '').length < 10) {
+        addToast("Please enter a valid 10-digit phone number", "error");
+        return;
+      }
+    }
+    setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
+  };
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   const loadRazorpay = () => {
@@ -170,15 +187,15 @@ function CheckOut() {
             await fetchCart(); 
           }
         } else {
-          alert(data.error || "Failed to place order.");
+          addToast(data.error || "Failed to place order.", "error");
         }
       } catch (err) {
-        alert("Network error. Is the backend running?");
+        addToast("Network error. Is the backend running?", "error");
       }
     } else {
       const res = await loadRazorpay();
       if (!res) {
-        alert("Razorpay SDK failed to load. Are you online?");
+        addToast("Razorpay SDK failed to load. Are you online?", "error");
         return;
       }
 
@@ -195,7 +212,7 @@ function CheckOut() {
         const orderDataFromBackend = await orderRes.json();
 
         if (!orderRes.ok) {
-          alert(orderDataFromBackend.error || "Error creating payment order.");
+          addToast(orderDataFromBackend.error || "Error creating payment order.", "error");
           return;
         }
 
@@ -224,7 +241,7 @@ function CheckOut() {
                 await fetchCart(); 
               }
             } else {
-              alert(verifyData.error || "Payment verification failed.");
+              addToast(verifyData.error || "Payment verification failed.", "error");
             }
           },
           prefill: {
@@ -238,7 +255,7 @@ function CheckOut() {
         const rzp = new window.Razorpay(options);
         rzp.open();
       } catch (err) {
-        alert("Error initiating payment. Please try again.");
+        addToast("Error initiating payment. Please try again.", "error");
       }
     }
   };
@@ -408,7 +425,6 @@ function CheckOut() {
               <button 
                 className="px-10 py-3 bg-[#febd69] text-[#111] font-bold rounded-xl shadow-lg shadow-[#febd69]/10 active:scale-95 transition-all"
                 onClick={nextStep}
-                disabled={currentStep === 0 && (!formData.name || !formData.phone || !formData.address)}
               >
                 Next Step
               </button>
