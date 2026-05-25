@@ -37,7 +37,7 @@ function Wishlist() {
   if (!user) return null;
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 min-h-[60vh]">
+    <div className="max-w-[1440px] mx-auto py-8 px-4 min-h-[60vh]">
       <Breadcrumbs />
       
       <div className="flex justify-between items-center mb-10">
@@ -46,7 +46,7 @@ function Wishlist() {
       </div>
 
       {user.wishlist && user.wishlist.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-6">
           {user.wishlist.map((product) => {
             const productId = product._id || product.id;
             return (
@@ -56,13 +56,13 @@ function Wishlist() {
               >
                 {/* Image Section */}
                 <div 
-                  className="aspect-square bg-[#f3f3f3] p-6 flex items-center justify-center cursor-pointer relative"
+                  className="aspect-[4/3] bg-[#f3f3f3] p-4 flex items-center justify-center cursor-pointer relative"
                   onClick={() => navigate(`/product/${productId}`)}
                 >
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply"
+                    className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply"
                   />
                   <button 
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/10 hover:bg-red-500/20 flex items-center justify-center text-red-500 transition-colors"
@@ -76,7 +76,7 @@ function Wishlist() {
                 </div>
 
                 {/* Content Section */}
-                <div className="p-4 flex flex-col flex-grow">
+                <div className="p-3 flex flex-col flex-grow">
                   <h3 
                     className="text-white font-bold text-sm mb-1 line-clamp-2 hover:text-[#febd69] cursor-pointer"
                     onClick={() => navigate(`/product/${productId}`)}

@@ -35,7 +35,7 @@ function App() {
               <BrowserRouter>
               <div className="min-h-screen bg-[#0f1111] flex flex-col">
                 <AmazonNavbar />
-                <main className="flex-grow pt-32 lg:pt-24 px-4 max-w-7xl mx-auto w-full">
+                <main className="flex-grow pt-32 lg:pt-24 px-4 max-w-[1440px] mx-auto w-full">
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/products" element={<ProductList />} />

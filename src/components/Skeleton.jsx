@@ -4,10 +4,10 @@ export const ProductCardSkeleton = () => (
   <div className="flex h-full">
     <div className="flex flex-col justify-between w-full bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-lg animate-pulse">
       {/* Image Area */}
-      <div className="aspect-square w-full bg-white/5" />
+      <div className="aspect-[4/3] w-full bg-white/5" />
       
       {/* Content Area */}
-      <div className="p-4 flex flex-col flex-grow">
+      <div className="p-3 flex flex-col flex-grow">
         {/* Title Lines */}
         <div className="space-y-2 mb-4">
           <div className="h-4 bg-white/5 rounded w-full" />

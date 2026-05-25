@@ -33,100 +33,102 @@ function AmazonNavbar() {
   return (
     <>
       <nav className="fixed top-0 left-0 w-full z-[9999] bg-[#131921] shadow-lg px-4 py-2 flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-4">
-          <Link to="/" className="text-[#febd69] font-bold text-2xl">
-            ShopAbhi
-          </Link>
+        <div className="max-w-[1440px] mx-auto w-full flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-4">
+            <Link to="/" className="text-[#febd69] font-bold text-2xl">
+              ShopAbhi
+            </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden lg:flex items-center gap-4">
-            {user && user.role === "admin" && (
-              <Link to="/admin" className="text-[#febd69] border border-[#febd69]/30 hover:bg-[#febd69]/10 px-4 py-1.5 rounded-md transition font-bold">
-                Admin Panel
+            {/* Desktop Links */}
+            <div className="hidden lg:flex items-center gap-4">
+              {user && user.role === "admin" && (
+                <Link to="/admin" className="text-[#febd69] border border-[#febd69]/30 hover:bg-[#febd69]/10 px-4 py-1.5 rounded-md transition font-bold">
+                  Admin Panel
+                </Link>
+              )}
+              <Link to="/orders" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
+                My Orders
               </Link>
-            )}
-            <Link to="/orders" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
-              My Orders
-            </Link>
-            <Link to="/wishlist" className="relative text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
-              ❤️ Wishlist
-              {user?.wishlist?.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full">
-                  {user.wishlist.length}
-                </span>
-              )}
-            </Link>
-            <Link to="/profile" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
-              Profile
-            </Link>
-            <Link to="/" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
-              Home
-            </Link>
-            <button 
-              onClick={openMiniCart}
-              className="relative bg-[#febd69] hover:bg-[#f3a847] text-[#111] font-bold px-4 py-1.5 rounded-md transition cart-icon-target"
-            >
-              🛒 Cart
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#131921]">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-            {user && user.email ? (
-              <button className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition" onClick={handleLogout}>
-                Logout ({user.email.split('@')[0]})
+              <Link to="/wishlist" className="relative text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
+                ❤️ Wishlist
+                {user?.wishlist?.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full">
+                    {user.wishlist.length}
+                  </span>
+                )}
+              </Link>
+              <Link to="/profile" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
+                Profile
+              </Link>
+              <Link to="/" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
+                Home
+              </Link>
+              <button 
+                onClick={openMiniCart}
+                className="relative bg-[#febd69] hover:bg-[#f3a847] text-[#111] font-bold px-4 py-1.5 rounded-md transition cart-icon-target"
+              >
+                🛒 Cart
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#131921]">
+                    {cartCount}
+                  </span>
+                )}
               </button>
-            ) : (
-              <div className="flex gap-2">
-                <Link to="/login" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
-                  Login
-                </Link>
-                <Link to="/signup" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
-                  Signup
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Controls */}
-          <div className="flex lg:hidden items-center gap-3">
-            <button
-              className="text-white text-xl p-2"
-              onClick={toggleSearch}
-              aria-label="Toggle search"
-            >
-              🔍
-            </button>
-            <Link to="/cart" className="relative bg-[#febd69] text-[#111] p-2 rounded-md cart-icon-target">
-              🛒
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#131921]">
-                  {cartCount}
-                </span>
+              {user && user.email ? (
+                <button className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition" onClick={handleLogout}>
+                  Logout ({user.email.split('@')[0]})
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <Link to="/login" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
+                    Login
+                  </Link>
+                  <Link to="/signup" className="text-white border border-white/30 hover:bg-white/10 px-4 py-1.5 rounded-md transition">
+                    Signup
+                  </Link>
+                </div>
               )}
-            </Link>
-            <button
-              className="text-white text-2xl p-1"
-              onClick={openDrawer}
-              aria-label="Open menu"
-            >
-              ☰
-            </button>
-          </div>
-        </div>
+            </div>
 
-        {/* Search Bar */}
-        <div className={`w-full overflow-hidden transition-all duration-300 ${isSearchOpen ? "max-h-20 opacity-100 py-2" : "max-h-0 lg:max-h-20 opacity-0 lg:opacity-100 lg:py-0"}`}>
-          <form onSubmit={handleSearch} className="w-full max-w-2xl mx-auto flex px-2 lg:px-0">
-            <input
-              type="text"
-              className="w-full rounded-full px-4 py-1.5 bg-white text-gray-900 border-2 border-[#febd69] focus:outline-none focus:ring-2 focus:ring-[#ffa41c] shadow-sm"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </form>
+            {/* Mobile Controls */}
+            <div className="flex lg:hidden items-center gap-3">
+              <button
+                className="text-white text-xl p-2"
+                onClick={toggleSearch}
+                aria-label="Toggle search"
+              >
+                🔍
+              </button>
+              <Link to="/cart" className="relative bg-[#febd69] text-[#111] p-2 rounded-md cart-icon-target">
+                🛒
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#131921]">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+              <button
+                className="text-white text-2xl p-1"
+                onClick={openDrawer}
+                aria-label="Open menu"
+              >
+                ☰
+              </button>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className={`w-full overflow-hidden transition-all duration-300 ${isSearchOpen ? "max-h-20 opacity-100 py-2" : "max-h-0 lg:max-h-20 opacity-0 lg:opacity-100 lg:py-0"}`}>
+            <form onSubmit={handleSearch} className="w-full max-w-2xl mx-auto flex px-2 lg:px-0">
+              <input
+                type="text"
+                className="w-full rounded-full px-4 py-1.5 bg-white text-gray-900 border-2 border-[#febd69] focus:outline-none focus:ring-2 focus:ring-[#ffa41c] shadow-sm"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </form>
+          </div>
         </div>
       </nav>
 

@@ -160,8 +160,8 @@ function ProductList({ hideFilters = false }) {
         {!hideFilters && <div className="h-10 w-48 bg-white/5 rounded-lg mb-8 animate-pulse" />}
         <div className="flex flex-col lg:flex-row gap-8">
           {!hideFilters && <div className="w-64 h-[500px] bg-white/5 rounded-2xl animate-pulse shrink-0" />}
-          <div className="flex-grow">
-            <div className={`grid gap-4 md:gap-6 ${hideFilters ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-2 xl:grid-cols-3"}`}>
+        <div className="flex-grow">
+            <div className={`grid gap-4 md:gap-6 ${hideFilters ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6" : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"}`}>
               {[...Array(8)].map((_, i) => (
                 <ProductCardSkeleton key={i} />
               ))}
@@ -281,7 +281,7 @@ function ProductList({ hideFilters = false }) {
           </div>
         </div>
 
-        <div className={`grid gap-4 md:gap-6 ${hideFilters ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-2 xl:grid-cols-3"}`}>
+        <div className={`grid gap-4 md:gap-6 ${hideFilters ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6" : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"}`}>
           {paginatedProducts.map((p) => {
             const productId = p._id || p.id;
             return (
@@ -296,7 +296,7 @@ function ProductList({ hideFilters = false }) {
                   role="button"
                   aria-label={`View details for ${p.name}`}
                 >
-                  <div className="aspect-square w-full bg-[#f3f3f3] p-4 flex items-center justify-center">
+                  <div className="aspect-[4/3] w-full bg-[#f3f3f3] p-4 flex items-center justify-center">
                     <img
                       src={p.image}
                       alt={p.name}
@@ -316,7 +316,7 @@ function ProductList({ hideFilters = false }) {
                     </button>
                   </div>
                   
-                  <div className="p-4 flex flex-col flex-grow">
+                  <div className="p-3 flex flex-col flex-grow">
                     <div className="flex justify-between items-start mb-1">
                       <h5 className="text-[#ff9900] font-semibold text-sm md:text-base line-clamp-2 min-h-[2.5rem] flex-grow">
                         {p.name}

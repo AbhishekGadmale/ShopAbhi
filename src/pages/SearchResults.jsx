@@ -144,7 +144,7 @@ function SearchResults() {
             <p className="text-gray-400 text-lg">No products match your current filters.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {filtered.map((p) => {
               const productId = p._id || p.id;
               return (
@@ -153,16 +153,16 @@ function SearchResults() {
                   className="group bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden hover:border-[#febd69] transition-all duration-300 flex flex-col shadow-xl"
                 >
                   <div 
-                    className="aspect-square bg-white p-6 flex items-center justify-center cursor-pointer"
+                    className="aspect-[4/3] bg-[#f3f3f3] p-4 flex items-center justify-center cursor-pointer"
                     onClick={() => navigate(`/product/${productId}`)}
                   >
                     <img
                       src={p.image}
                       alt={p.name}
-                      className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500"
+                      className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 [mix-blend-mode:multiply]"
                     />
                   </div>
-                  <div className="p-5 flex flex-col flex-grow">
+                  <div className="p-3 flex flex-col flex-grow">
                     <div className="flex justify-between items-start gap-2 mb-2">
                       <h5 className="text-white font-bold text-lg line-clamp-1 group-hover:text-[#febd69] transition-colors">{p.name}</h5>
                       <span className="bg-white/5 text-[10px] text-gray-400 px-2 py-1 rounded uppercase tracking-tighter">{p.category}</span>
